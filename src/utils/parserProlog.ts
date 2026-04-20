@@ -57,6 +57,9 @@ function parsePrologTerm(tokens: LogicToken[]): ASTNode {
     if (t.type === "upper_id" || (t.type === "lower_id" && t.value.startsWith("_"))) {
       return { type: "Variable", name: t.value };
     }
+    if (t.type === "number") {
+      return { type: "Constant", name: t.value };
+    }
     if (t.type === "lower_id") {
       return { type: "Constant", name: t.value };
     }

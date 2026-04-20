@@ -225,6 +225,45 @@ export function parseStandardFormula(tokens: LogicToken[]): ASTNode {
       throw new Error(`errors.error_unexpected_variable|${name}`);
     }
 
+    if (peek().type === "number") {
+      const value = (peek() as any).value;
+      eat("number");
+      const args: ASTNode[] = [];
+      if (peek().type === "lparen") {
+        eat("lparen");
+        if (peek().type === "rparen") {
+          throw new Error("errors.error_empty_arguments");
+        }
+        while (peek().type === "number" || peek().type === "upper_id" || peek().type === "lower_id") {
+          args.push(parseTerm(true));
+          if (peek().type === "comma") {
+            eat("comma");
+            if (peek().type === "rparen") {
+              throw new Error("errors.error_unexpected_comma");
+            }
+          }
+        }
+        const nextType = peek().type;
+        if (nextType === "comma") {
+          throw new Error("errors.error_unexpected_comma");
+        }
+        if (
+          nextType === "and" ||
+          nextType === "or" ||
+          nextType === "implies" ||
+          nextType === "not"
+        ) {
+          throw new Error(`errors.error_operator_inside_arguments|${getSymbolFromType(nextType)}`);
+        }
+        if (peek().type !== "rparen") {
+          throw new Error("errors.error_parentheses");
+        }
+        eat("rparen");
+        return { type: "Function", name: value, args };
+      }
+      return { type: "Constant", name: value };
+    }
+
     if (peek().type === "comma") {
       throw new Error("errors.error_unexpected_comma");
     }
@@ -238,8 +277,8 @@ export function parseStandardFormula(tokens: LogicToken[]): ASTNode {
         if (peek().type === "rparen") {
           throw new Error("errors.error_empty_arguments");
         }
-        while (peek().type === "upper_id" || peek().type === "lower_id") {
-          args.push(parseTerm());
+        while (peek().type === "number" || peek().type === "upper_id" || peek().type === "lower_id") {
+          args.push(parseTerm(true));
           if (peek().type === "comma") {
             eat("comma");
             if (peek().type === "rparen") {
@@ -387,6 +426,46 @@ export function parseStandardFormula(tokens: LogicToken[]): ASTNode {
       }
       return { type: "Variable", name };
     }
+
+    if (peek().type === "number") {
+      const value = (peek() as any).value;
+      eat("number");
+      if (peek().type === "lparen") {
+        eat("lparen");
+        if (peek().type === "rparen") {
+          throw new Error("errors.error_empty_arguments");
+        }
+        const args: ASTNode[] = [];
+        while (peek().type === "number" || peek().type === "upper_id" || peek().type === "lower_id") {
+          args.push(parseTerm(true));
+          if (peek().type === "comma") {
+            eat("comma");
+            if (peek().type === "rparen") {
+              throw new Error("errors.error_unexpected_comma");
+            }
+          }
+        }
+        const nextType = peek().type;
+        if (nextType === "comma") {
+          throw new Error("errors.error_unexpected_comma");
+        }
+        if (
+          nextType === "and" ||
+          nextType === "or" ||
+          nextType === "implies" ||
+          nextType === "not"
+        ) {
+          throw new Error(`errors.error_operator_inside_arguments|${getSymbolFromType(nextType)}`);
+        }
+        if (peek().type !== "rparen") {
+          throw new Error("errors.error_parentheses");
+        }
+        eat("rparen");
+        return { type: "Function", name: value, args };
+      }
+      return { type: "Constant", name: value };
+    }
+
     throw new Error(`errors.error_expected_term|${getSymbolFromType(peek().type)}`);
   }
 

@@ -10,6 +10,7 @@ export type LogicToken =
   | { type: "comma" }
   | { type: "lower_id"; value: string }
   | { type: "upper_id"; value: string }
+  | { type: "number"; value: string }
   | { type: "unknown"; value: string }
   | { type: "query" }
   | { type: "rule" }
@@ -84,6 +85,15 @@ export function logicTokenize(rawInput: string): LogicToken[] {
     if (c === ":" && input[i + 1] === "-") {
       tokens.push({ type: "rule" });
       i += 2;
+      continue;
+    }
+    if (c.match(/[0-9]/)) {
+      const start = i;
+      while (i < input.length && input[i].match(/[0-9]/)) {
+        i++;
+      }
+      const value = input.slice(start, i);
+      tokens.push({ type: "number", value });
       continue;
     }
     if (c.match(/[a-zA-Z_]/)) {
