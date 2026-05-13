@@ -12,7 +12,7 @@ sibling(X, Y) :- parent(P, X), parent(P, Y), not_same(X, Y).
   },
   { 
     labelKey: "example_2", 
-    value: "(((P(x)∧S(x))=>K(x))∧(K(x)∧(L(x)∨O(x))=>B(x))∧P(j)∧S(j)∧L(j)∧O(j)∧P(m)∧S(m)∧L(m))=>B(S)" 
+    value: "((∀x)(∀u)(∃m)(((P(x)∧S(x))=>K(x))∧(K(u)∧(L(u)∨O(u))=>B(x))∧P(j)∧S(j)∧L(j)∧O(j)∧P(m)∧S(m)∧L(m)))=>B(S)" 
   },
   {
     labelKey: "example_3",
