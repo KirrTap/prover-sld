@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { EXAMPLES } from "../../data/examples";
 import { useLanguage } from "../../translations/LanguageContext";
 import { replaceShortcutsRealtime } from "../../utils/logicInputShortcuts";
@@ -25,6 +25,8 @@ export const InputForm = ({
   const { t } = useLanguage();
   const [inputValue, setInputValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
+  const lineCount = useMemo(() => inputValue.split("\n").length, [inputValue]);
   const [showExamples, setShowExamples] = useState(false);
   const exampleBtnRef = useRef<HTMLButtonElement>(null);
   const handleExampleSelect = (exampleValue: string) => {
@@ -129,13 +131,34 @@ export const InputForm = ({
           )}
         </div>
       </div>
-      <textarea
-        ref={textareaRef}
-        value={inputValue}
-        onChange={handleTextareaChange}
-        spellCheck={false}
-        className="w-full h-48 min-h-[192px] p-4 border border-gray-300 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 mb-4 text-lg"
-      />
+      <div
+        className="flex w-full border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent mb-4 overflow-hidden"
+        style={{ height: "12rem", minHeight: "12rem", resize: "vertical" }}
+      >
+        <div
+          ref={lineNumbersRef}
+          className="bg-gray-50 border-r border-gray-200 pt-4 pb-4 px-2 select-none text-right text-gray-400 text-base overflow-hidden flex-shrink-0"
+          style={{ minWidth: "2.5rem" }}
+        >
+          {Array.from({ length: lineCount }, (_, i) => (
+            <div key={i + 1} style={{ height: "1.75rem", lineHeight: "1.75rem" }}>
+              {i + 1}
+            </div>
+          ))}
+        </div>
+        <textarea
+          ref={textareaRef}
+          value={inputValue}
+          onChange={handleTextareaChange}
+          onScroll={(e) => {
+            if (lineNumbersRef.current)
+              lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+          }}
+          spellCheck={false}
+          className="flex-1 h-full p-4 resize-none focus:outline-none text-gray-700 text-lg"
+          style={{ lineHeight: "1.75rem" }}
+        />
+      </div>
       {externalError && (
         <ErrorMessage
           message={t(externalError.key).replace(
