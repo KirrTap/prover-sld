@@ -17,7 +17,8 @@ export type ASTNode =
   | { type: "Predicate"; name: string; args: ASTNode[] }
   | { type: "Constant"; name: string }
   | { type: "Variable"; name: string }
-  | { type: "Function"; name: string; args: ASTNode[] };
+  | { type: "Function"; name: string; args: ASTNode[] }
+  | { type: "Cut" };
 
 export function parseStandardFormula(tokens: LogicToken[]): ASTNode {
   const hasLogicalOperator = tokens.some(
