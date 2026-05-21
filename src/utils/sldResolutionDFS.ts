@@ -6,6 +6,7 @@ export interface SLDNode {
   parent?: string;
   usedRule?: string;
   usedClauseIndex?: number;
+  builtinName?: string;
   subst?: Record<string, string>;
   status: "open" | "success" | "failure";
   isFailLabel?: boolean;
