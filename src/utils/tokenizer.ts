@@ -19,7 +19,13 @@ export type LogicToken =
   | { type: "eof" };
 
 export function logicTokenize(rawInput: string): LogicToken[] {
-  const input = rawInput;
+  const input = rawInput
+    .split("\n")
+    .map((line) => {
+      const idx = line.indexOf("%");
+      return idx === -1 ? line : line.slice(0, idx);
+    })
+    .join("\n");
   const tokens: LogicToken[] = [];
   let i = 0;
 

@@ -8,9 +8,17 @@ export const LOGIC_SYMBOL_REPLACEMENTS = [
 ];
 
 export function replaceShortcutsRealtime(str: string) {
-  let out = str;
-  for (const { shortcut, symbol } of LOGIC_SYMBOL_REPLACEMENTS) {
-    out = out.replace(shortcut, symbol);
-  }
-  return out;
+  return str
+    .split("\n")
+    .map((line) => {
+      const pctIdx = line.indexOf("%");
+      const code = pctIdx === -1 ? line : line.slice(0, pctIdx);
+      const comment = pctIdx === -1 ? "" : line.slice(pctIdx);
+      let out = code;
+      for (const { shortcut, symbol } of LOGIC_SYMBOL_REPLACEMENTS) {
+        out = out.replace(shortcut, symbol);
+      }
+      return out + comment;
+    })
+    .join("\n");
 }

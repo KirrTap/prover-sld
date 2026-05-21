@@ -1,6 +1,7 @@
 import { useRef, useState, useMemo } from "react";
 import { EXAMPLES } from "../../data/examples";
 import { useLanguage } from "../../translations/LanguageContext";
+import { useTheme } from "../../context/ThemeContext";
 import { replaceShortcutsRealtime } from "../../utils/logicInputShortcuts";
 import { logicTokenize, type LogicToken } from "../../utils/tokenizer";
 import { ErrorMessage } from "./ErrorMessage";
@@ -23,9 +24,11 @@ export const InputForm = ({
   setExternalError,
 }: InputFormProps) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [inputValue, setInputValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
+  const highlightRef = useRef<HTMLDivElement>(null);
   const lineCount = useMemo(() => inputValue.split("\n").length, [inputValue]);
   const [showExamples, setShowExamples] = useState(false);
   const exampleBtnRef = useRef<HTMLButtonElement>(null);
@@ -62,6 +65,32 @@ export const InputForm = ({
     setExternalError(null);
     onProcess(null);
   };
+
+  const commentColor = theme === "dark" ? "#6a9955" : "#15803d";
+  const caretColor = theme === "dark" ? "#e5e7eb" : "#374151";
+
+  function getHighlightedContent(text: string) {
+    const lines = text.split("\n");
+    return lines.map((line, idx) => {
+      const pctIdx = line.indexOf("%");
+      const isLast = idx === lines.length - 1;
+      if (pctIdx === -1) {
+        return (
+          <span key={idx}>
+            {line}
+            {!isLast && "\n"}
+          </span>
+        );
+      }
+      return (
+        <span key={idx}>
+          {line.slice(0, pctIdx)}
+          <span style={{ color: commentColor }}>{line.slice(pctIdx)}</span>
+          {!isLast && "\n"}
+        </span>
+      );
+    });
+  }
 
   const handleProcess = () => {
     const rawTokens = logicTokenize(inputValue);
@@ -146,18 +175,50 @@ export const InputForm = ({
             </div>
           ))}
         </div>
-        <textarea
-          ref={textareaRef}
-          value={inputValue}
-          onChange={handleTextareaChange}
-          onScroll={(e) => {
-            if (lineNumbersRef.current)
-              lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
-          }}
-          spellCheck={false}
-          className="flex-1 h-full p-4 resize-none focus:outline-none text-gray-700 dark:text-gray-200 dark:bg-gray-800 text-lg"
-          style={{ lineHeight: "1.75rem" }}
-        />
+        <div className="flex-1 relative bg-white dark:bg-gray-800 overflow-hidden">
+          <div
+            ref={highlightRef}
+            aria-hidden="true"
+            className="absolute inset-0 overflow-hidden pointer-events-none select-none text-gray-700 dark:text-gray-200"
+            style={{
+              padding: "1rem",
+              fontSize: "1.125rem",
+              lineHeight: "1.75rem",
+              whiteSpace: "pre-wrap",
+              overflowWrap: "break-word",
+              fontFamily: "inherit",
+            }}
+          >
+            {getHighlightedContent(inputValue)}
+          </div>
+          <textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={handleTextareaChange}
+            onScroll={(e) => {
+              if (lineNumbersRef.current)
+                lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+              if (highlightRef.current) {
+                highlightRef.current.scrollTop = e.currentTarget.scrollTop;
+                highlightRef.current.scrollLeft = e.currentTarget.scrollLeft;
+              }
+            }}
+            spellCheck={false}
+            className="absolute inset-0 w-full h-full resize-none focus:outline-none"
+            style={{
+              padding: "1rem",
+              fontSize: "1.125rem",
+              lineHeight: "1.75rem",
+              fontFamily: "inherit",
+              background: "transparent",
+              color: "transparent",
+              caretColor: caretColor,
+              border: "none",
+              outline: "none",
+              overflow: "auto",
+            }}
+          />
+        </div>
       </div>
       {externalError && (
         <ErrorMessage

@@ -207,7 +207,6 @@ export function parsePrologFormula(tokens: LogicToken[]): ASTNode {
       continue;
     }
 
-    // Check if rule
     const ruleIndex = stmtTokens.findIndex((t) => t.type === "rule");
     if (ruleIndex !== -1) {
       if (ruleIndex === 0 || ruleIndex === stmtTokens.length - 1) {
@@ -230,8 +229,6 @@ export function parsePrologFormula(tokens: LogicToken[]): ASTNode {
       continue;
     }
 
-    // Otherwise it's a fact
-    // Ak je v stmtTokens cut (!), vyhoď špeciálnu chybu
     if (stmtTokens.some((t) => t.type === "cut")) {
       throw new Error("errors.error_prolog_cut_outside_rule");
     }

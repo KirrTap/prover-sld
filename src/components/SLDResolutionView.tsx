@@ -113,11 +113,21 @@ export const SLDResolutionView = ({ tokens, strategy, onStrategyChange }: SLDRes
     if (!resolutionData || !resolutionData.treeData) return;
 
     const { treeData, knowledgeBase, goals } = resolutionData;
-    const initialClauses = [...goals, ...knowledgeBase];
+    const latexKBWithIdx = knowledgeBase.map((c, i) => ({ clause: c, origIdx: i }));
+    const latexSortedKBWithIdx = [
+      ...latexKBWithIdx.filter(({ clause }) => clause.length === 1),
+      ...latexKBWithIdx.filter(({ clause }) => clause.length > 1),
+    ];
+    const latexSortedKB = latexSortedKBWithIdx.map(({ clause }) => clause);
+    const latexKBIdxToRow: Record<number, number> = {};
+    latexSortedKBWithIdx.forEach(({ origIdx }, displayIdx) => {
+      latexKBIdxToRow[origIdx] = displayIdx + 1;
+    });
+    const initialClauses = [...latexSortedKB, ...goals];
     const visibleNodes = treeData.nodes.slice(0, visibleSteps);
     const stepMap: Record<string, number> = {};
     if (treeData.nodes.length > 0) {
-      stepMap[treeData.nodes[0].id] = 1;
+      stepMap[treeData.nodes[0].id] = initialClauses.length;
       treeData.nodes.slice(1).forEach((n, i) => {
         stepMap[n.id] = initialClauses.length + i + 1;
       });
@@ -174,7 +184,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
       }
 
       const parentStep = node.parent ? stepMap[node.parent] : '?';
-      const kbStep = node.usedClauseIndex !== undefined ? goals.length + node.usedClauseIndex + 1 : node.builtinName ?? '?';
+      const kbStep = node.usedClauseIndex !== undefined ? latexKBIdxToRow[node.usedClauseIndex] : node.builtinName ?? '?';
       const resolvedWithText = node.isFailLabel ? "" : `${parentStep},${kbStep}`;
       
       const edge = treeData.edges.find(e => e.target === node.id);
@@ -203,12 +213,26 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
   if (!resolutionData || !resolutionData.treeData || resolutionData.treeData.nodes.length === 0) return null;
 
   const { treeData, knowledgeBase, goals } = resolutionData;
-  const initialClauses = [...goals, ...knowledgeBase];
+
+  // Sort KB for display: unit clauses (facts) first, multi-literal (rules) second
+  const kbWithOrigIdx = knowledgeBase.map((c, i) => ({ clause: c, origIdx: i }));
+  const sortedKBWithIdx = [
+    ...kbWithOrigIdx.filter(({ clause }) => clause.length === 1),
+    ...kbWithOrigIdx.filter(({ clause }) => clause.length > 1),
+  ];
+  const sortedKB = sortedKBWithIdx.map(({ clause }) => clause);
+  const kbOrigIdxToRow: Record<number, number> = {};
+  sortedKBWithIdx.forEach(({ origIdx }, displayIdx) => {
+    kbOrigIdxToRow[origIdx] = displayIdx + 1;
+  });
+
+  // Display order: facts → rules → goal
+  const initialClauses = [...sortedKB, ...goals];
   const visibleNodes = treeData.nodes.slice(0, visibleSteps);
 
   const stepMap: Record<string, number> = {};
   if (treeData.nodes.length > 0) {
-    stepMap[treeData.nodes[0].id] = 1;
+    stepMap[treeData.nodes[0].id] = initialClauses.length; // goal is last initial row
     treeData.nodes.slice(1).forEach((n, i) => {
       stepMap[n.id] = initialClauses.length + i + 1;
     });
@@ -264,7 +288,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
             </thead>
             <tbody>
               {initialClauses.map((clause, idx) => {
-                const isRootGoal = idx === 0;
+                const isRootGoal = idx === initialClauses.length - 1;
                 const nodeId = isRootGoal && treeData.nodes.length > 0 ? treeData.nodes[0].id : null;
                 const isHighlighted = highlightedNodeId && nodeId === highlightedNodeId;
                 
@@ -297,7 +321,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
                 }
 
                 const parentStep = node.parent ? stepMap[node.parent] : '?';
-                const kbStep = node.usedClauseIndex !== undefined ? goals.length + node.usedClauseIndex + 1 : node.builtinName ?? '?';
+                const kbStep = node.usedClauseIndex !== undefined ? kbOrigIdxToRow[node.usedClauseIndex] : node.builtinName ?? '?';
                 const resolvedWithText = node.isFailLabel ? "" : `${parentStep},${kbStep}`;
                 
                 const edge = treeData.edges.find(e => e.target === node.id);
