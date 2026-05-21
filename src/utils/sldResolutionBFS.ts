@@ -1,5 +1,6 @@
 import { parseLiteralToPredicate, unifyPredicates, applySubstitutionToPredicate, termToString, type Predicate, type Term } from "./unification";
 import type { SLDNode, SLDEdge, SLDTreeData } from "./sldResolutionDFS";
+import { isTruePredicate, isFailPredicate } from "./sldResolutionDFS";
 
 export function generateSLDTreeBFS(knowledgeBase: string[][], initialGoals: string[][], maxDepth: number = 15, variables: string[] = []): SLDTreeData {
   const nodes: SLDNode[] = [];
@@ -51,7 +52,27 @@ export function generateSLDTreeBFS(knowledgeBase: string[][], initialGoals: stri
 
     const currentGoal = node.goals[0];
     const remainingGoals = node.goals.slice(1);
-    
+
+    if (isTruePredicate(currentGoal)) {
+      const trueChildId = `n${nodeIdCounter++}`;
+      const trueChildNode: SLDNode = {
+        id: trueChildId,
+        goals: remainingGoals,
+        parent: node.id,
+        builtinName: "true",
+        status: remainingGoals.length === 0 ? "success" : "open",
+      };
+      nodes.push(trueChildNode);
+      edges.push({ id: `e-${node.id}-${trueChildId}`, source: node.id, target: trueChildId, label: "{ }" });
+      queue.push({ node: trueChildNode, depth: depth + 1 });
+      continue;
+    }
+
+    if (isFailPredicate(currentGoal)) {
+      node.status = "failure";
+      continue;
+    }
+
     let hasChildren = false;
 
     for (let kbIdx = 0; kbIdx < kbParsed.length; kbIdx++) {

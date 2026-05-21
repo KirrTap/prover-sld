@@ -28,8 +28,16 @@ export interface SLDTreeData {
   hitMaxDepth: boolean;
 }
 
-function isCutPredicate(p: Predicate): boolean {
+export function isCutPredicate(p: Predicate): boolean {
   return p.name === "!" && p.args.length === 0;
+}
+
+export function isTruePredicate(p: Predicate): boolean {
+  return p.name === "true" && p.args.length === 0 && !p.isNegated;
+}
+
+export function isFailPredicate(p: Predicate): boolean {
+  return p.name === "fail" && p.args.length === 0 && !p.isNegated;
 }
 
 export function generateSLDTreeDFS(knowledgeBase: string[][], initialGoals: string[][], maxDepth: number = 15, variables: string[] = []): SLDTreeData {
@@ -75,9 +83,54 @@ export function generateSLDTreeDFS(knowledgeBase: string[][], initialGoals: stri
 
     if (isCutPredicate(node.goals[0])) {
       node.isCut = true;
-      node.goals = node.goals.slice(1);
-      explore(node, depth, isPruned);
+      const remainingAfterCut = node.goals.slice(1);
+      const cutChildId = `n${nodeIdCounter++}`;
+      const cutChildNode: SLDNode = {
+        id: cutChildId,
+        goals: remainingAfterCut,
+        parent: node.id,
+        builtinName: "!",
+        status: remainingAfterCut.length === 0 ? "success" : "open",
+        isPruned: isPruned,
+      };
+      nodes.push(cutChildNode);
+      edges.push({
+        id: `e-${node.id}-${cutChildId}`,
+        source: node.id,
+        target: cutChildId,
+        label: "{ }",
+        isPruned: isPruned,
+      });
+      explore(cutChildNode, depth + 1, isPruned);
       return true;
+    }
+
+    if (isTruePredicate(node.goals[0])) {
+      const remainingAfterTrue = node.goals.slice(1);
+      const trueChildId = `n${nodeIdCounter++}`;
+      const trueChildNode: SLDNode = {
+        id: trueChildId,
+        goals: remainingAfterTrue,
+        parent: node.id,
+        builtinName: "true",
+        status: remainingAfterTrue.length === 0 ? "success" : "open",
+        isPruned: isPruned,
+      };
+      nodes.push(trueChildNode);
+      edges.push({
+        id: `e-${node.id}-${trueChildId}`,
+        source: node.id,
+        target: trueChildId,
+        label: "{ }",
+        isPruned: isPruned,
+      });
+      explore(trueChildNode, depth + 1, isPruned);
+      return false;
+    }
+
+    if (isFailPredicate(node.goals[0])) {
+      node.status = "failure";
+      return false;
     }
 
     const currentGoal = node.goals[0];
