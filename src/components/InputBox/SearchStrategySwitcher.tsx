@@ -21,13 +21,13 @@ export const SearchStrategySwitcher: React.FC<SearchStrategySwitcherProps> = ({
 
   return (
     <div className="flex items-center gap-3">
-      <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200">
+      <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg border border-gray-200 dark:border-gray-600">
         <button
           onClick={() => setStrategy("dfs")}
           className={`px-5 py-1.5 text-sm font-bold rounded-md transition-all ${
             strategy === "dfs"
               ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
-              : "text-gray-600 hover:text-gray-800 hover:bg-gray-200/50"
+              : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-gray-600/50"
           }`}
         >
           DFS
@@ -41,7 +41,7 @@ export const SearchStrategySwitcher: React.FC<SearchStrategySwitcherProps> = ({
               ? "text-gray-400 cursor-not-allowed opacity-50"
               : strategy === "bfs"
               ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
-              : "text-gray-600 hover:text-gray-800 hover:bg-gray-200/50"
+              : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-gray-600/50"
           }`}
         >
           BFS
@@ -49,7 +49,7 @@ export const SearchStrategySwitcher: React.FC<SearchStrategySwitcherProps> = ({
       </div>
       {hasCut && (
         <label className="flex items-center gap-2 cursor-pointer select-none">
-          <span className="text-sm font-bold text-gray-600 whitespace-nowrap">
+          <span className="text-sm font-bold text-gray-600 dark:text-gray-300 whitespace-nowrap">
             {t("show_all_branches")}
           </span>
           <div

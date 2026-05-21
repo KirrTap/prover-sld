@@ -85,8 +85,8 @@ export const InputForm = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-4 px-8 flex flex-col">
-      <label className="block text-lg font-semibold text-gray-700 mb-2">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-4 px-8 flex flex-col">
+      <label className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
         {t("enter_formula")}
       </label>
       <div className="mb-4">
@@ -94,7 +94,7 @@ export const InputForm = ({
           <button
             ref={exampleBtnRef}
             type="button"
-            className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 bg-white text-black font-medium hover:bg-gray-100 min-w-[120px] cursor-pointer"
+            className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-gray-200 font-medium hover:bg-gray-100 dark:hover:bg-gray-600 min-w-[120px] cursor-pointer"
             style={{ minWidth: 120 }}
             onClick={() => setShowExamples((v) => !v)}
           >
@@ -115,12 +115,12 @@ export const InputForm = ({
           </button>
           {showExamples && (
             <div
-              className="absolute z-10 bg-white border border-gray-300 rounded shadow-lg mt-1 left-0 min-w-[140px]"
+              className="absolute z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg mt-1 left-0 min-w-[140px]"
             >
               {EXAMPLES.map((ex) => (
                 <button
                   key={ex.labelKey}
-                  className="block w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-800 cursor-pointer"
+                  className="block w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 cursor-pointer"
                   onClick={() => handleExampleSelect(ex.value)}
                   type="button"
                 >
@@ -132,12 +132,12 @@ export const InputForm = ({
         </div>
       </div>
       <div
-        className="flex w-full border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent mb-4 overflow-hidden"
+        className="flex w-full border border-gray-300 dark:border-gray-600 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent mb-4 overflow-hidden"
         style={{ height: "12rem", minHeight: "12rem", resize: "vertical" }}
       >
         <div
           ref={lineNumbersRef}
-          className="bg-gray-50 border-r border-gray-200 pt-4 pb-4 px-2 select-none text-right text-gray-400 text-base overflow-hidden flex-shrink-0"
+          className="bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 pt-4 pb-4 px-2 select-none text-right text-gray-400 dark:text-gray-500 text-base overflow-hidden flex-shrink-0"
           style={{ minWidth: "2.5rem" }}
         >
           {Array.from({ length: lineCount }, (_, i) => (
@@ -155,7 +155,7 @@ export const InputForm = ({
               lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
           }}
           spellCheck={false}
-          className="flex-1 h-full p-4 resize-none focus:outline-none text-gray-700 text-lg"
+          className="flex-1 h-full p-4 resize-none focus:outline-none text-gray-700 dark:text-gray-200 dark:bg-gray-800 text-lg"
           style={{ lineHeight: "1.75rem" }}
         />
       </div>

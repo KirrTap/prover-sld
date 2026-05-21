@@ -71,10 +71,10 @@ export const StepsToSetNotation = ({
   if (!results) return null;
 
   return (
-    <div className="mt-6 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+    <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`w-full flex justify-between items-center text-left text-lg font-semibold text-gray-700 ${isExpanded ? 'mb-4' : ''} transition-colors focus:outline-none`}
+        className={`w-full flex justify-between items-center text-left text-lg font-semibold text-gray-700 dark:text-gray-200 ${isExpanded ? 'mb-4' : ''} transition-colors focus:outline-none`}
       >
         <span>{t("transformation_steps")}</span>
         <svg 
@@ -89,93 +89,93 @@ export const StepsToSetNotation = ({
       </button>
 
       {isExpanded && (
-        <div className="relative border-l-2 border-blue-200 ml-4 pl-6 space-y-6 mt-6 pb-2">
+        <div className="relative border-l-2 border-blue-200 dark:border-blue-800 ml-4 pl-6 space-y-6 mt-6 pb-2">
           
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">{t("parsed_formula")}</h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{t("parsed_formula")}</h3>
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.parsed}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
               {t("negated_formula")}
             </h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.negated}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
               {t("removed_implies")}
             </h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.noImplies}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">{t("nnf_formula")}</h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{t("nnf_formula")}</h3>
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.nnf}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
               {t("nnf_unique_vars")}
             </h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.nnfUniqueVars}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">{t("pnf_formula")}</h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{t("pnf_formula")}</h3>
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.pnf}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">{t("skolem_formula")}</h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{t("skolem_formula")}</h3>
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.skolemized}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
               {t("removed_quantifiers")}
             </h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.removedForall}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">{t("cnf_formula")}</h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{t("cnf_formula")}</h3>
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               {results.cnf}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute -left-[33px] top-3 h-[calc(100%+20px)] w-4 bg-white"></div>
-            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white"></div>
-            <h3 className="font-semibold text-gray-800 text-sm">{t("clause_set")}</h3>
-            <div className="mt-2 p-3 bg-gray-50/80 rounded-lg font-mono text-sm border border-gray-200 shadow-sm text-gray-700 overflow-x-auto">
+            <div className="absolute -left-[33px] top-3 h-[calc(100%+20px)] w-4 bg-white dark:bg-gray-800"></div>
+            <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[31px] top-1.5 ring-4 ring-white dark:ring-gray-800"></div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{t("clause_set")}</h3>
+            <div className="mt-2 p-3 bg-gray-50/80 dark:bg-gray-900/80 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
               <span>{"{"}</span>
               {results.clauses.map((clause, idx) => (
                 <span key={idx}>

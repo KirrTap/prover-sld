@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { languages } from "./translations";
 import type { LanguageKey } from "./translations";
 
@@ -13,7 +13,13 @@ const LanguageContext = createContext<LanguageContextType | null>(null);
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [lang, setLang] = useState<LanguageKey>("sk");
+  const [lang, setLang] = useState<LanguageKey>(
+    () => (localStorage.getItem("lang") as LanguageKey) ?? "sk"
+  );
+
+  useEffect(() => {
+    localStorage.setItem("lang", lang);
+  }, [lang]);
 
   const t = (key: string, params?: Record<string, string | number>) => {
     const translations = languages[lang].translations as Record<

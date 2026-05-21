@@ -174,7 +174,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
       }
 
       const parentStep = node.parent ? stepMap[node.parent] : '?';
-      const kbStep = node.usedClauseIndex !== undefined ? goals.length + node.usedClauseIndex + 1 : '?';
+      const kbStep = node.usedClauseIndex !== undefined ? goals.length + node.usedClauseIndex + 1 : node.builtinName ?? '?';
       const resolvedWithText = node.isFailLabel ? "" : `${parentStep},${kbStep}`;
       
       const edge = treeData.edges.find(e => e.target === node.id);
@@ -242,9 +242,9 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
         />
       </div>
 
-      <div className="w-full lg:w-[40%] flex flex-col bg-white p-6 rounded-xl shadow-lg border border-gray-200 min-h-[500px] lg:h-[757px]">
+      <div className="w-full lg:w-[40%] flex flex-col bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 min-h-[500px] lg:h-[769px] overflow-hidden">
         <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-          <h3 className="font-bold text-lg text-gray-700">{t("resolution_trace")}</h3>
+          <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200">{t("resolution_trace")}</h3>
           <button 
             onClick={copyToLatex}
             className="px-5 py-1.5 min-w-[140px] bg-purple-600 text-white rounded-md border border-purple-600 shadow-sm hover:bg-purple-700 hover:border-purple-700 font-bold transition-all text-sm"
@@ -252,14 +252,14 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
             {t("export_table_latex")}
           </button>
         </div>
-        <div className="flex-1 overflow-auto rounded-lg shadow-sm border border-gray-300">
+        <div className="flex-1 min-h-0 overflow-auto rounded-lg shadow-sm border border-gray-300 dark:border-gray-600">
           <table className="w-full text-left border-collapse">
             <thead className="sticky top-0 z-10 shadow-[0_1px_0_#d1d5db]">
               <tr>
-                <th className="bg-gray-100 border-b border-r border-gray-300 p-2 font-semibold text-gray-700 whitespace-nowrap w-12 text-center">{t("table_number")}</th>
-                <th className="bg-gray-100 border-b border-r border-gray-300 p-2 font-semibold text-gray-700">{t("clause")}</th>
-                <th className="bg-gray-100 border-b border-r border-gray-300 p-2 font-semibold text-gray-700 text-center whitespace-nowrap">{t("resolved_with")}</th>
-                <th className="bg-gray-100 border-b border-gray-300 p-2 font-semibold text-gray-700 text-center">{t("unification")}</th>
+                <th className="bg-gray-100 dark:bg-gray-700 border-b border-r border-gray-300 dark:border-gray-600 p-2 font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap w-12 text-center">{t("table_number")}</th>
+                <th className="bg-gray-100 dark:bg-gray-700 border-b border-r border-gray-300 dark:border-gray-600 p-2 font-semibold text-gray-700 dark:text-gray-200">{t("clause")}</th>
+                <th className="bg-gray-100 dark:bg-gray-700 border-b border-r border-gray-300 dark:border-gray-600 p-2 font-semibold text-gray-700 dark:text-gray-200 text-center whitespace-nowrap">{t("resolved_with")}</th>
+                <th className="bg-gray-100 dark:bg-gray-700 border-b border-gray-300 dark:border-gray-600 p-2 font-semibold text-gray-700 dark:text-gray-200 text-center">{t("unification")}</th>
               </tr>
             </thead>
             <tbody>
@@ -272,15 +272,15 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
                   <tr 
                     id={nodeId ? `row-${nodeId}` : undefined}
                     key={`init-${idx}`} 
-                    className={`transition-colors ${nodeId ? 'cursor-pointer' : 'cursor-not-allowed bg-gray-50'} ${isHighlighted ? 'bg-blue-200 hover:bg-blue-300' : (nodeId ? 'hover:bg-gray-50' : '')}`}
+                    className={`transition-colors ${nodeId ? 'cursor-pointer' : 'cursor-not-allowed bg-gray-50 dark:bg-gray-900'} ${isHighlighted ? 'bg-blue-200 dark:bg-blue-900 hover:bg-blue-300 dark:hover:bg-blue-800' : (nodeId ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : '')}`}
                     onClick={() => nodeId && setHighlightedNodeId(prev => prev === nodeId ? null : nodeId)}
                   >
-                    <td className={`border-b border-r border-gray-300 p-2 font-medium text-center ${isHighlighted ? 'bg-blue-300/50 text-gray-800' : (nodeId ? 'bg-gray-50/50 text-gray-800' : 'bg-gray-100/50 text-gray-400')}`}>{idx + 1}</td>
-                    <td className={`border-b border-r border-gray-300 p-2 font-mono text-sm break-words ${nodeId ? 'text-gray-800' : 'text-gray-400'}`}>
+                    <td className={`border-b border-r border-gray-300 dark:border-gray-600 p-2 font-medium text-center ${isHighlighted ? 'bg-blue-300/50 dark:bg-blue-800/50 text-gray-800 dark:text-gray-100' : (nodeId ? 'bg-gray-50/50 dark:bg-gray-700/30 text-gray-800 dark:text-gray-200' : 'bg-gray-100/50 dark:bg-gray-700/50 text-gray-400 dark:text-gray-500')}`}>{idx + 1}</td>
+                    <td className={`border-b border-r border-gray-300 dark:border-gray-600 p-2 font-mono text-sm break-words ${nodeId ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>
                       {formatWithBreaks(clause.join(", "))}
                     </td>
-                    <td className="border-b border-r border-gray-300 p-2 text-gray-800 font-medium text-center"></td>
-                    <td className="border-b border-gray-300 p-2 text-gray-800 font-medium text-center"></td>
+                    <td className="border-b border-r border-gray-300 dark:border-gray-600 p-2 text-gray-800 dark:text-gray-200 font-medium text-center"></td>
+                    <td className="border-b border-gray-300 dark:border-gray-600 p-2 text-gray-800 dark:text-gray-200 font-medium text-center"></td>
                   </tr>
                 );
               })}
@@ -297,7 +297,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
                 }
 
                 const parentStep = node.parent ? stepMap[node.parent] : '?';
-                const kbStep = node.usedClauseIndex !== undefined ? goals.length + node.usedClauseIndex + 1 : '?';
+                const kbStep = node.usedClauseIndex !== undefined ? goals.length + node.usedClauseIndex + 1 : node.builtinName ?? '?';
                 const resolvedWithText = node.isFailLabel ? "" : `${parentStep},${kbStep}`;
                 
                 const edge = treeData.edges.find(e => e.target === node.id);
@@ -310,15 +310,15 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
                   <tr 
                     id={`row-${node.id}`}
                     key={node.id} 
-                    className={`transition-colors cursor-pointer ${isHighlighted ? 'bg-blue-200 hover:bg-blue-300' : 'bg-blue-50/30 hover:bg-blue-50'}`}
+                    className={`transition-colors cursor-pointer ${isHighlighted ? 'bg-blue-200 dark:bg-blue-900 hover:bg-blue-300 dark:hover:bg-blue-800' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}
                     onClick={() => setHighlightedNodeId(prev => prev === node.id ? null : node.id)}
                   >
-                    <td className={`border-b border-r border-gray-300 p-2 text-gray-800 font-medium text-center ${isHighlighted ? 'bg-blue-300/50' : 'bg-blue-50/50'}`}>{initialClauses.length + idx + 1}</td>
-                    <td className={`border-b border-r border-gray-300 p-2 font-mono text-sm break-words ${isSpecial ? (node.isFailLabel ? 'text-red-600 font-bold' : 'text-black font-bold') : 'text-gray-800'}`}>
+                    <td className={`border-b border-r border-gray-300 dark:border-gray-600 p-2 text-gray-800 dark:text-gray-200 font-medium text-center ${isHighlighted ? 'bg-blue-300/50 dark:bg-blue-800/50' : 'bg-gray-50/50 dark:bg-gray-700/30'}`}>{initialClauses.length + idx + 1}</td>
+                    <td className={`border-b border-r border-gray-300 dark:border-gray-600 p-2 font-mono text-sm break-words ${isSpecial ? (node.isFailLabel ? 'text-red-500 dark:text-red-400 font-bold' : 'text-gray-900 dark:text-gray-100 font-bold') : 'text-gray-800 dark:text-gray-200'}`}>
                       {formatWithBreaks(resolventText)}
                     </td>
-                    <td className="border-b border-r border-gray-300 p-2 text-gray-800 font-mono text-sm text-center whitespace-nowrap">{resolvedWithText}</td>
-                    <td className="border-b border-gray-300 p-2 text-gray-800 font-mono text-sm text-center break-words">{formatWithBreaks(displayUnificationText)}</td>
+                    <td className="border-b border-r border-gray-300 dark:border-gray-600 p-2 text-gray-800 dark:text-gray-200 font-mono text-sm text-center whitespace-nowrap">{resolvedWithText}</td>
+                    <td className="border-b border-gray-300 dark:border-gray-600 p-2 text-gray-800 dark:text-gray-200 font-mono text-sm text-center break-words">{formatWithBreaks(displayUnificationText)}</td>
                   </tr>
                 );
               })}
@@ -329,16 +329,16 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
 
       {isLatexModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-full">
-            <h3 className="text-lg font-bold mb-4 text-gray-800">{t("export_latex_title")}</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96 max-w-full">
+            <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">{t("export_latex_title")}</h3>
             <div className="mb-4">
-              <label className="block mb-2 font-semibold text-gray-700">{t("export_latex_scope")}</label>
+              <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-300">{t("export_latex_scope")}</label>
               <div className="flex flex-col gap-2">
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="table" checked={latexExportType === 'table'} onChange={() => setLatexExportType('table')} className="mr-2 cursor-pointer" />
                   {t("export_latex_table_only")}
                 </label>
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="document" checked={latexExportType === 'document'} onChange={() => setLatexExportType('document')} className="mr-2 cursor-pointer" />
                   {t("export_latex_full_document")}
                 </label>
@@ -346,13 +346,13 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
             </div>
 
             <div className="mb-4">
-              <label className="block mb-2 font-semibold text-gray-700">{t("export_latex_orientation")}</label>
+              <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-300">{t("export_latex_orientation")}</label>
               <div className="flex flex-col gap-2">
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="portrait" checked={latexOrientation === 'portrait'} onChange={() => setLatexOrientation('portrait')} className="mr-2 cursor-pointer" />
                   {t("export_latex_portrait")}
                 </label>
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="landscape" checked={latexOrientation === 'landscape'} onChange={() => setLatexOrientation('landscape')} className="mr-2 cursor-pointer" />
                   {t("export_latex_landscape")}
                 </label>
@@ -360,7 +360,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
+              <button className="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
               <button className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors" onClick={handleConfirmLatexCopy}>{t("copy")}</button>
             </div>
           </div>
@@ -369,9 +369,9 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
 
       {showCycleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-full">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96 max-w-full">
             <h3 className="text-lg font-bold mb-4 text-amber-800">{t("infinite_cycle_warning")}</h3>
-            <p className="text-gray-700 mb-6">
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
               {t("infinite_cycle_message")}
             </p>
             <div className="flex justify-end">

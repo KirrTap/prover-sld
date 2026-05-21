@@ -18,6 +18,7 @@ import dagre from "dagre";
 import { type SLDTreeData } from "../utils/sldResolutionDFS";
 import { predicateToString } from "../utils/unification";
 import { useLanguage } from "../translations/LanguageContext";
+import { useTheme } from "../context/ThemeContext";
 import { SearchStrategySwitcher } from "./InputBox/SearchStrategySwitcher";
 
 interface SLDTreeProps {
@@ -108,6 +109,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => 
 
 const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, highlightedNodeId, onNodeClick, strategy, onStrategyChange, hasCut, showAllBranches, onToggleAllBranches }: SLDTreeProps) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const isLocked = false; 
@@ -301,22 +303,23 @@ ${treeLatex}
         ? "□"
         : node.goals.map(g => predicateToString(g)).join(', ');
 
-      let bg = '#ffffff';
-      let border = '#d1d5db';
-      let color = '#111827';
+      const dark = theme === "dark";
+      let bg = dark ? '#1f2937' : '#ffffff';
+      let border = dark ? '#4b5563' : '#d1d5db';
+      let color = dark ? '#f9fafb' : '#111827';
 
       if (node.isPruned) {
-        bg = '#f3f4f6';
-        border = '#9ca3af';
-        color = '#6b7280';
+        bg = dark ? '#374151' : '#f3f4f6';
+        border = dark ? '#6b7280' : '#9ca3af';
+        color = dark ? '#9ca3af' : '#6b7280';
       } else if (node.status === "success") {
-        bg = '#dcfce7';
-        border = '#22c55e';
-        color = '#14532d';
+        bg = dark ? '#14532d' : '#dcfce7';
+        border = dark ? '#16a34a' : '#22c55e';
+        color = dark ? '#bbf7d0' : '#14532d';
       } else if (node.status === "failure") {
-        bg = '#fee2e2';
-        border = '#ef4444';
-        color = '#7f1d1d';
+        bg = dark ? '#7f1d1d' : '#fee2e2';
+        border = dark ? '#dc2626' : '#ef4444';
+        color = dark ? '#fecaca' : '#7f1d1d';
       }
 
       return {
@@ -327,6 +330,7 @@ ${treeLatex}
       };
     });
 
+    const dark = theme === "dark";
     const initialEdges: Edge[] = effectiveTreeEdges.map((edge) => {
       const isTargetHighlighted = edge.target === highlightedNodeId;
       const isPruned = edge.isPruned;
@@ -337,16 +341,32 @@ ${treeLatex}
         label: edge.label,
         type: 'smoothstep',
         labelStyle: {
-          fill: isPruned ? '#9ca3af' : isTargetHighlighted ? '#2563eb' : '#374151',
+          fill: isPruned
+            ? (dark ? '#6b7280' : '#9ca3af')
+            : isTargetHighlighted
+            ? (dark ? '#93c5fd' : '#2563eb')
+            : (dark ? '#e5e7eb' : '#374151'),
           fontWeight: isTargetHighlighted ? 700 : 500,
         },
         labelBgStyle: {
-          fill: isPruned ? '#f3f4f6' : isTargetHighlighted ? '#dbeafe' : '#f3f4f6',
-          stroke: isPruned ? '#e5e7eb' : isTargetHighlighted ? '#3b82f6' : '#d1d5db',
+          fill: isPruned
+            ? (dark ? '#374151' : '#f3f4f6')
+            : isTargetHighlighted
+            ? (dark ? '#1e3a5f' : '#dbeafe')
+            : (dark ? '#1f2937' : '#f3f4f6'),
+          stroke: isPruned
+            ? (dark ? '#4b5563' : '#e5e7eb')
+            : isTargetHighlighted
+            ? '#3b82f6'
+            : (dark ? '#4b5563' : '#d1d5db'),
         },
         animated: !isPruned,
         style: {
-          stroke: isPruned ? '#d1d5db' : isTargetHighlighted ? '#3b82f6' : '#b1b1b7',
+          stroke: isPruned
+            ? (dark ? '#4b5563' : '#d1d5db')
+            : isTargetHighlighted
+            ? '#3b82f6'
+            : (dark ? '#6b7280' : '#b1b1b7'),
           strokeWidth: isTargetHighlighted ? 3 : 1,
           strokeDasharray: isPruned ? '6 4' : undefined,
         },
@@ -364,7 +384,7 @@ ${treeLatex}
 
     setNodes(visibleNodes);
     setEdges(visibleEdges);
-  }, [effectiveTreeNodes, effectiveTreeEdges, visibleSteps, setNodes, setEdges, t, highlightedNodeId]);
+  }, [effectiveTreeNodes, effectiveTreeEdges, visibleSteps, setNodes, setEdges, t, highlightedNodeId, theme]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -375,14 +395,14 @@ ${treeLatex}
 
   return (
     <div className={isFullscreen
-      ? "fixed inset-0 z-50 flex flex-col bg-white"
-      : "flex flex-col w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
+      ? "fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-800"
+      : "flex flex-col w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700"
     }>
       {treeData.nodes.length > 0 && (
-        <div className="flex flex-wrap justify-between items-center bg-white p-4 border-b border-gray-200 gap-4">
+        <div className="flex flex-wrap justify-between items-center bg-white dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700 gap-4 rounded-t-xl">
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-3">
-              <h3 className="font-bold text-lg text-gray-700 whitespace-nowrap">{t("sld_tree")}</h3>
+              <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 whitespace-nowrap">{t("sld_tree")}</h3>
               <button
                 onClick={copyTreeToLatex}
                 className="px-5 py-1.5 min-w-[140px] bg-purple-600 text-white rounded-md border border-purple-600 shadow-sm hover:bg-purple-700 hover:border-purple-700 font-bold transition-all text-sm"
@@ -402,13 +422,13 @@ ${treeLatex}
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button 
-              className="px-5 py-1.5 min-w-[120px] bg-gray-100 text-gray-600 rounded-md border border-gray-200 hover:bg-gray-200 hover:text-gray-800 font-bold disabled:opacity-50 transition-all text-sm"
+              className="px-5 py-1.5 min-w-[120px] bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-800 dark:hover:text-gray-100 font-bold disabled:opacity-50 transition-all text-sm"
               disabled={visibleSteps <= 1}
               onClick={() => setVisibleSteps(v => Math.max(1, v - 1))}
             >
               {t("stepper.prev")}
             </button>
-            <span className="text-sm font-semibold whitespace-nowrap min-w-[90px] text-center text-gray-700">
+            <span className="text-sm font-semibold whitespace-nowrap min-w-[90px] text-center text-gray-700 dark:text-gray-300">
               {t("stepper.step")} {visibleSteps} / {effectiveMax}
             </span>
             <button
@@ -418,7 +438,7 @@ ${treeLatex}
             >
               {t("stepper.next")}
             </button>
-            <div className="hidden sm:block w-[1px] h-8 bg-gray-300 mx-1"></div>
+            <div className="hidden sm:block w-[1px] h-8 bg-gray-300 dark:bg-gray-600 mx-1"></div>
             <button
               className="px-5 py-1.5 min-w-[140px] bg-green-600 text-white rounded-md border border-green-600 shadow-md hover:shadow-lg hover:bg-green-700 hover:border-green-700 font-bold transition-all text-sm"
               onClick={() => { setVisibleSteps(effectiveMax); setFitViewTrigger(t => t + 1); }}
@@ -429,7 +449,7 @@ ${treeLatex}
         </div>
       )}
 
-      <div className={isFullscreen ? "flex-1 relative bg-white" : "w-full h-[700px] relative bg-white"}>
+      <div className={isFullscreen ? "flex-1 relative bg-white dark:bg-gray-900" : "w-full h-[700px] relative bg-white dark:bg-gray-900 rounded-b-xl overflow-hidden"}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -445,6 +465,8 @@ ${treeLatex}
           zoomOnScroll={!isLocked}
           zoomOnPinch={!isLocked}
           zoomOnDoubleClick={!isLocked}
+          colorMode={theme === "dark" ? "dark" : "light"}
+          proOptions={{ hideAttribution: true }}
         >
           <Background />
           <Controls showZoom={false} showFitView={false} showInteractive={false}>
@@ -490,16 +512,16 @@ ${treeLatex}
 
       {isLatexModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-full">
-            <h3 className="text-lg font-bold mb-4 text-gray-800">{t("export_latex_title")}</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96 max-w-full">
+            <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">{t("export_latex_title")}</h3>
             <div className="mb-4">
-              <label className="block mb-2 font-semibold text-gray-700">{t("export_latex_scope")}</label>
+              <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-300">{t("export_latex_scope")}</label>
               <div className="flex flex-col gap-2">
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="tree" checked={latexExportType === 'tree'} onChange={() => setLatexExportType('tree')} className="mr-2 cursor-pointer" />
                   {t("export_latex_tree_only")}
                 </label>
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="document" checked={latexExportType === 'document'} onChange={() => setLatexExportType('document')} className="mr-2 cursor-pointer" />
                   {t("export_latex_full_document")}
                 </label>
@@ -507,13 +529,13 @@ ${treeLatex}
             </div>
 
             <div className="mb-4">
-              <label className="block mb-2 font-semibold text-gray-700">{t("export_latex_orientation")}</label>
+              <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-300">{t("export_latex_orientation")}</label>
               <div className="flex flex-col gap-2">
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="portrait" checked={latexOrientation === 'portrait'} onChange={() => setLatexOrientation('portrait')} className="mr-2 cursor-pointer" />
                   {t("export_latex_portrait")}
                 </label>
-                <label className="inline-flex items-center text-gray-700 cursor-pointer">
+                <label className="inline-flex items-center text-gray-700 dark:text-gray-300 cursor-pointer">
                   <input type="radio" value="landscape" checked={latexOrientation === 'landscape'} onChange={() => setLatexOrientation('landscape')} className="mr-2 cursor-pointer" />
                   {t("export_latex_landscape")}
                 </label>
@@ -521,7 +543,7 @@ ${treeLatex}
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
+              <button className="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
               <button className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors" onClick={handleConfirmLatexCopy}>{t("copy")}</button>
             </div>
           </div>
