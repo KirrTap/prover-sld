@@ -23,7 +23,6 @@ import { type SLDTreeData } from "../utils/sldResolutionDFS";
 import { predicateToString } from "../utils/unification";
 import { useLanguage } from "../translations/LanguageContext";
 import { useTheme } from "../context/ThemeContext";
-import { SearchStrategySwitcher } from "./InputBox/SearchStrategySwitcher";
 
 interface SLDTreeProps {
   treeData: SLDTreeData;
@@ -32,11 +31,12 @@ interface SLDTreeProps {
   nodeClauseRef?: Record<string, string>;
   highlightedNodeId?: string | null;
   onNodeClick?: (nodeId: string) => void;
-  strategy: "dfs" | "bfs";
-  onStrategyChange: (strategy: "dfs" | "bfs") => void;
-  hasCut?: boolean;
   showAllBranches?: boolean;
-  onToggleAllBranches?: () => void;
+  showNumbering: boolean;
+  showNegation: boolean;
+  bracketStyle: "{}" | "[]";
+  treeLatexTrigger: number;
+  controlBar?: React.ReactNode;
 }
 
 const nodeWidth = 200;
@@ -183,6 +183,12 @@ const edgeTypes = {
   customSLDEdge: CustomSLDEdge,
 };
 
+function formatSubstLabel(label: string | undefined, style: "{}" | "[]"): string {
+  const raw = label ?? "{}";
+  if (style === "[]") return raw.replace(/{/g, "[").replace(/}/g, "]");
+  return raw === "{}" ? "{ }" : raw;
+}
+
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -213,7 +219,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => 
   return { nodes: layoutedNodes, edges };
 };
 
-const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef, highlightedNodeId, onNodeClick, strategy, onStrategyChange, hasCut, showAllBranches, onToggleAllBranches }: SLDTreeProps) => {
+const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef, highlightedNodeId, onNodeClick, showAllBranches, showNumbering, showNegation, bracketStyle, treeLatexTrigger, controlBar }: SLDTreeProps) => {
   const { t } = useLanguage();
   const { theme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -258,6 +264,10 @@ const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [isFullscreen]);
+
+  useEffect(() => {
+    if (treeLatexTrigger > 0) setIsLatexModalOpen(true);
+  }, [treeLatexTrigger]);
 
   const copyTreeToLatex = () => {
     setIsLatexModalOpen(true);
@@ -408,6 +418,8 @@ ${treeLatex}
         ? "□"
         : node.goals.map(g => predicateToString(g)).join(', ');
 
+      const displayText = !showNegation ? goalsText.replace(/¬/g, '') : goalsText;
+
       const dark = theme === "dark";
       let bg = dark ? '#1f2937' : '#ffffff';
       let border = dark ? '#4b5563' : '#d1d5db';
@@ -429,7 +441,7 @@ ${treeLatex}
 
       return {
         id: node.id,
-        data: { label: goalsText, bg, border, color, step: index + 1, isHighlighted: node.id === highlightedNodeId },
+        data: { label: displayText, bg, border, color, step: index + 1, isHighlighted: node.id === highlightedNodeId },
         position: { x: 0, y: 0 },
         type: "sldNode",
       };
@@ -445,8 +457,8 @@ ${treeLatex}
         type: 'customSLDEdge',
         animated: !isPruned,
         data: {
-          substLabel: edge.label ?? '{ }',
-          clauseRef: nodeClauseRef?.[edge.target],
+          substLabel: formatSubstLabel(edge.label, bracketStyle),
+          clauseRef: showNumbering ? nodeClauseRef?.[edge.target] : undefined,
           isPruned,
           isHighlighted: isTargetHighlighted,
         },
@@ -464,7 +476,7 @@ ${treeLatex}
 
     setNodes(visibleNodes);
     setEdges(visibleEdges);
-  }, [effectiveTreeNodes, effectiveTreeEdges, visibleSteps, setNodes, setEdges, t, highlightedNodeId, theme]);
+  }, [effectiveTreeNodes, effectiveTreeEdges, visibleSteps, setNodes, setEdges, t, highlightedNodeId, theme, showNegation, showNumbering, bracketStyle]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -478,31 +490,20 @@ ${treeLatex}
       ? "fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-800"
       : "flex flex-col w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700"
     }>
+      {isFullscreen && controlBar && (
+        <div className="border-b border-gray-200 dark:border-gray-700">
+          {controlBar}
+        </div>
+      )}
+
       {treeData.nodes.length > 0 && (
         <div className="flex flex-wrap justify-between items-center bg-white dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700 gap-4 rounded-t-xl">
           <div className="flex flex-wrap items-center gap-6">
-            <div className="flex items-center gap-3">
-              <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 whitespace-nowrap">{t("sld_tree")}</h3>
-              <button
-                onClick={copyTreeToLatex}
-                className="px-5 py-1.5 min-w-[140px] bg-purple-600 text-white rounded-md border border-purple-600 shadow-sm hover:bg-purple-700 hover:border-purple-700 font-bold transition-all text-sm"
-              >
-                {t("export_tree_latex")}
-              </button>
-            </div>
-            <div className="flex justify-center items-center ml-4">
-              <SearchStrategySwitcher
-                strategy={strategy}
-                setStrategy={onStrategyChange}
-                hasCut={hasCut}
-                showAllBranches={showAllBranches}
-                onToggleAllBranches={onToggleAllBranches}
-              />
-            </div>
+            <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 whitespace-nowrap">{t("sld_tree")}</h3>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button 
-              className="px-5 py-1.5 min-w-[120px] bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-800 dark:hover:text-gray-100 font-bold disabled:opacity-50 transition-all text-sm"
+              className="px-5 py-1.5 min-w-[120px] bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-800 dark:hover:text-gray-100 font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all text-sm"
               disabled={visibleSteps <= 1}
               onClick={() => setVisibleSteps(v => Math.max(1, v - 1))}
             >
@@ -512,7 +513,7 @@ ${treeLatex}
               {t("stepper.step")} {visibleSteps} / {effectiveMax}
             </span>
             <button
-              className="px-5 py-1.5 min-w-[120px] bg-blue-600 text-white rounded-md border border-blue-600 shadow-sm hover:bg-blue-700 hover:border-blue-700 font-bold disabled:opacity-50 transition-all text-sm"
+              className="px-5 py-1.5 min-w-[120px] bg-blue-600 text-white rounded-md border border-blue-600 shadow-sm hover:bg-blue-700 hover:border-blue-700 font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all text-sm"
               disabled={visibleSteps >= effectiveMax}
               onClick={() => setVisibleSteps(v => Math.min(effectiveMax, v + 1))}
             >
@@ -520,7 +521,7 @@ ${treeLatex}
             </button>
             <div className="hidden sm:block w-[1px] h-8 bg-gray-300 dark:bg-gray-600 mx-1"></div>
             <button
-              className="px-5 py-1.5 min-w-[140px] bg-green-600 text-white rounded-md border border-green-600 shadow-md hover:shadow-lg hover:bg-green-700 hover:border-green-700 font-bold transition-all text-sm"
+              className="px-5 py-1.5 min-w-[140px] bg-green-600 text-white rounded-md border border-green-600 shadow-md hover:shadow-lg hover:bg-green-700 hover:border-green-700 font-bold transition-all text-sm cursor-pointer"
               onClick={() => { setVisibleSteps(effectiveMax); setFitViewTrigger(t => t + 1); }}
             >
               {t("stepper.show_all")}
@@ -624,8 +625,8 @@ ${treeLatex}
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button className="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
-              <button className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors" onClick={handleConfirmLatexCopy}>{t("copy")}</button>
+              <button className="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors cursor-pointer" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
+              <button className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors cursor-pointer" onClick={handleConfirmLatexCopy}>{t("copy")}</button>
             </div>
           </div>
         </div>
@@ -634,7 +635,7 @@ ${treeLatex}
   );
 };
 
-export const SLDTree = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef, highlightedNodeId, onNodeClick, strategy, onStrategyChange, hasCut, showAllBranches, onToggleAllBranches }: SLDTreeProps) => {
+export const SLDTree = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef, highlightedNodeId, onNodeClick, showAllBranches, showNumbering, showNegation, bracketStyle, treeLatexTrigger, controlBar }: SLDTreeProps) => {
   return (
     <ReactFlowProvider>
       <SLDTreeContent
@@ -644,11 +645,12 @@ export const SLDTree = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef
         nodeClauseRef={nodeClauseRef}
         highlightedNodeId={highlightedNodeId}
         onNodeClick={onNodeClick}
-        strategy={strategy}
-        onStrategyChange={onStrategyChange}
-        hasCut={hasCut}
         showAllBranches={showAllBranches}
-        onToggleAllBranches={onToggleAllBranches}
+        showNumbering={showNumbering}
+        showNegation={showNegation}
+        bracketStyle={bracketStyle}
+        treeLatexTrigger={treeLatexTrigger}
+        controlBar={controlBar}
       />
     </ReactFlowProvider>
   );

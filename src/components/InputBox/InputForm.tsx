@@ -35,7 +35,7 @@ export const InputForm = ({
   const highlightRef = useRef<HTMLDivElement>(null);
   const lineCount = useMemo(() => inputValue.split("\n").length, [inputValue]);
   const [showExamples, setShowExamples] = useState(false);
-  const [fontSize, setFontSize] = useState(16);
+  const [fontSize, setFontSize] = useState(18);
   const lineHeight = Math.round(fontSize * 1.75);
   const exampleBtnRef = useRef<HTMLButtonElement>(null);
   const handleExampleSelect = (exampleValue: string) => {
@@ -43,9 +43,15 @@ export const InputForm = ({
     setShowExamples(false);
     setExternalError(null);
     onProcess(null);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(0, 0);
+        textareaRef.current.scrollTop = 0;
+      }
+      if (lineNumbersRef.current) lineNumbersRef.current.scrollTop = 0;
+      if (highlightRef.current) highlightRef.current.scrollTop = 0;
+    }, 0);
   };
 
   const handleInsertSymbol = (symbol: string) => {
@@ -125,12 +131,26 @@ export const InputForm = ({
         {t("enter_formula")}
       </label>
       <div className="mb-4 flex items-center gap-3">
-        <div className="relative inline-block">
+        <div className="relative" style={{ display: "inline-grid" }}>
+          {/* Invisible sizer — determines width from longest example label */}
+          <div
+            className="invisible pointer-events-none select-none flex items-center gap-2 px-4 py-2 font-medium whitespace-nowrap"
+            style={{ gridArea: "1/1" }}
+            aria-hidden="true"
+          >
+            <span className="flex-1">
+              {EXAMPLES.reduce((longest, ex) => {
+                const label = t(ex.labelKey);
+                return label.length > longest.length ? label : longest;
+              }, t("examples"))}
+            </span>
+            <span className="w-6 flex-shrink-0" />
+          </div>
           <button
             ref={exampleBtnRef}
             type="button"
-            className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-gray-200 font-medium hover:bg-gray-100 dark:hover:bg-gray-600 min-w-[120px] cursor-pointer"
-            style={{ minWidth: 120 }}
+            className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-gray-200 font-medium hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+            style={{ gridArea: "1/1" }}
             onClick={() => setShowExamples((v) => !v)}
           >
             <span className="flex-1 text-left">{t("examples")}</span>
@@ -149,13 +169,11 @@ export const InputForm = ({
             </svg>
           </button>
           {showExamples && (
-            <div
-              className="absolute z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg mt-1 left-0 w-full"
-            >
+            <div className="absolute z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg top-full mt-1 left-0 w-full">
               {EXAMPLES.map((ex) => (
                 <button
                   key={ex.labelKey}
-                  className="block w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 cursor-pointer"
+                  className="block w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => handleExampleSelect(ex.value)}
                   type="button"
                 >
@@ -167,20 +185,23 @@ export const InputForm = ({
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2">
           <span className="text-gray-800 dark:text-gray-200 whitespace-nowrap font-medium">{t("font_size")}</span>
-          <input
-            type="number"
-            min={10}
-            max={32}
-            value={fontSize}
-            onChange={(e) => setFontSize(Number(e.target.value))}
-            className="w-12 bg-transparent text-gray-800 dark:text-gray-200 text-center focus:outline-none"
-          />
+          <button
+            type="button"
+            onClick={() => setFontSize(v => Math.max(10, v - 1))}
+            className="w-6 h-6 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-lg leading-none select-none cursor-pointer"
+          >−</button>
+          <span className="w-8 text-center text-gray-800 dark:text-gray-200 font-medium tabular-nums">{fontSize}</span>
+          <button
+            type="button"
+            onClick={() => setFontSize(v => Math.min(32, v + 1))}
+            className="w-6 h-6 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-lg leading-none select-none cursor-pointer"
+          >+</button>
           <span className="text-gray-800 dark:text-gray-200">px</span>
         </div>
       </div>
       <div
         className="flex w-full border border-gray-300 dark:border-gray-600 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent mb-4 overflow-hidden"
-        style={{ height: "12rem", minHeight: "12rem", resize: "vertical" }}
+        style={{ height: "18rem", minHeight: "18rem", resize: "vertical" }}
       >
         <div
           ref={lineNumbersRef}

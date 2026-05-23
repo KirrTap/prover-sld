@@ -1,7 +1,7 @@
 export const LOGIC_SYMBOL_REPLACEMENTS = [
   { shortcut: /\\and|\\land|\\&|\\wedge|\/\\/g, symbol: "∧" },
   { shortcut: /\\lor|\\or|\\vee|\\\//g, symbol: "∨" },
-  { shortcut: /\\implies|\\rightarrow|\\to|\\=>/g, symbol: "⇒" },
+  { shortcut: /\\implies|\\rightarrow|\\to|\\=>|=>/g, symbol: "⇒" },
   { shortcut: /\\neg|\\not|\\!/g, symbol: "¬" },
   { shortcut: /\\forall/g, symbol: "∀" },
   { shortcut: /\\exists/g, symbol: "∃" },

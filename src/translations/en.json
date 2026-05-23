@@ -53,12 +53,13 @@
   "sld_resolution_tree": "SLD Resolution Tree",
   "sld_tree": "SLD Tree",
   "examples": "Examples",
-  "example_1": "Example 1",
-  "example_2": "Example 2",
-  "example_3": "Example 3",
-  "example_4": "Example 4",
+  "example_1": "FOL Example",
+  "example_2": "Prolog Example",
+  "example_3": "Cut",
+  "example_4": "Negation as Failure",
   "fail": "Fail",
   "success": "□ (Success)",
+  "tutorial": "Tutorial",
   "documentation": "Documentation",
   "resolution_trace": "Resolution Trace",
   "resolvent": "Resolvent",
@@ -93,5 +94,8 @@
   "copy": "Copy",
   "infinite_cycle_warning": "Potential infinite cycle detected!",
   "infinite_cycle_message": "Maximum tree depth (16) has been reached. Search was cut off to prevent infinite loops.",
-  "infinite_cycle_close": "OK"
+  "infinite_cycle_close": "OK",
+  "show_numbering_in_tree": "Numbering in tree",
+  "show_negation_in_tree": "Negation in tree",
+  "bracket_style": "Unification Bracket"
 }

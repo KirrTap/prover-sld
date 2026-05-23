@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState } from "react";
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import { decideLogicType, type LogicToken } from "../utils/tokenizer";
 import { parseStandardFormula } from "../utils/parserStandard";
 import { parsePrologFormula } from "../utils/parserProlog";
@@ -24,21 +24,31 @@ interface SLDResolutionViewProps {
   tokens: LogicToken[];
   strategy: "dfs" | "bfs";
   onStrategyChange: (strategy: "dfs" | "bfs") => void;
+  showAllBranches: boolean;
+  showNumbering: boolean;
+  showNegation: boolean;
+  bracketStyle: "{}" | "[]";
+  treeLatexTrigger: number;
+  tableLatexTrigger: number;
+  controlBar?: React.ReactNode;
 }
 
-export const SLDResolutionView = ({ tokens, strategy, onStrategyChange }: SLDResolutionViewProps) => {
+export const SLDResolutionView = ({
+  tokens,
+  strategy,
+  onStrategyChange,
+  showAllBranches,
+  showNumbering,
+  showNegation,
+  bracketStyle,
+  treeLatexTrigger,
+  tableLatexTrigger,
+  controlBar,
+}: SLDResolutionViewProps) => {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [visibleSteps, setVisibleSteps] = useState<number>(1);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
-
-  const hasCut = useMemo(() => tokens.some(tok => tok.type === "cut"), [tokens]);
-  const [showAllBranches, setShowAllBranches] = useState(false);
-
-  useEffect(() => {
-    if (hasCut && strategy === "bfs") onStrategyChange("dfs");
-    if (!hasCut) setShowAllBranches(false);
-  }, [hasCut, strategy, onStrategyChange]);
 
   const [isLatexModalOpen, setIsLatexModalOpen] = useState(false);
   const [latexExportType, setLatexExportType] = useState<'document' | 'table'>('table');
@@ -104,6 +114,10 @@ export const SLDResolutionView = ({ tokens, strategy, onStrategyChange }: SLDRes
       setShowCycleModal(true);
     }
   }, [visibleSteps, resolutionData]);
+
+  useEffect(() => {
+    if (tableLatexTrigger > 0) setIsLatexModalOpen(true);
+  }, [tableLatexTrigger]);
 
   const copyToLatex = () => {
     setIsLatexModalOpen(true);
@@ -267,23 +281,18 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
           onNodeClick={(nodeId) => {
             setHighlightedNodeId(prev => prev === nodeId ? null : nodeId);
           }}
-          strategy={strategy}
-          onStrategyChange={onStrategyChange}
-          hasCut={hasCut}
           showAllBranches={showAllBranches}
-          onToggleAllBranches={() => setShowAllBranches(v => !v)}
+          showNumbering={showNumbering}
+          showNegation={showNegation}
+          bracketStyle={bracketStyle}
+          treeLatexTrigger={treeLatexTrigger}
+          controlBar={controlBar}
         />
       </div>
 
       <div className="w-full lg:w-[40%] flex flex-col bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 min-h-[500px] lg:h-[769px] overflow-hidden">
         <div className="flex items-center gap-3 mb-4 flex-shrink-0">
           <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200">{t("resolution_trace")}</h3>
-          <button 
-            onClick={copyToLatex}
-            className="px-5 py-1.5 min-w-[140px] bg-purple-600 text-white rounded-md border border-purple-600 shadow-sm hover:bg-purple-700 hover:border-purple-700 font-bold transition-all text-sm"
-          >
-            {t("export_table_latex")}
-          </button>
         </div>
         <div className="flex-1 min-h-0 overflow-auto rounded-lg shadow-sm border border-gray-300 dark:border-gray-600">
           <table className="w-full text-left border-collapse">
@@ -335,7 +344,9 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
                 
                 const edge = treeData.edges.find(e => e.target === node.id);
                 const unificationText = edge && edge.label ? edge.label : "";
-                const displayUnificationText = unificationText === "{}" ? "{ }" : unificationText;
+                const displayUnificationText = bracketStyle === "[]"
+                  ? unificationText.replace(/{/g, "[").replace(/}/g, "]")
+                  : (unificationText === "{}" ? "{ }" : unificationText);
                 
                 const isHighlighted = highlightedNodeId === node.id;
 
@@ -393,8 +404,8 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button className="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
-              <button className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors" onClick={handleConfirmLatexCopy}>{t("copy")}</button>
+              <button className="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors cursor-pointer" onClick={() => setIsLatexModalOpen(false)}>{t("cancel")}</button>
+              <button className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors cursor-pointer" onClick={handleConfirmLatexCopy}>{t("copy")}</button>
             </div>
           </div>
         </div>
@@ -409,7 +420,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
             </p>
             <div className="flex justify-end">
               <button 
-                className="px-4 py-2 text-white bg-amber-500 hover:bg-amber-600 rounded transition-colors" 
+                className="px-4 py-2 text-white bg-amber-500 hover:bg-amber-600 rounded transition-colors cursor-pointer"
                 onClick={() => setShowCycleModal(false)}
               >
                 {t("infinite_cycle_close")}

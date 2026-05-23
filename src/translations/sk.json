@@ -53,12 +53,13 @@
   "sld_resolution_tree": "SLD strom rezolúcie",
   "sld_tree": "SLD Strom",
   "examples": "Príklady",
-  "example_1": "Príklad 1",
-  "example_2": "Príklad 2",
-  "example_3": "Príklad 3",
-  "example_4": "Príklad 4",
+  "example_1": "FOL príklad",
+  "example_2": "Prolog príklad",
+  "example_3": "Rez",
+  "example_4": "Negácia ako zlyhanie",
   "fail": "Zlyhanie",
   "success": "□ (Úspech)",
+  "tutorial": "Návod",
   "documentation": "Dokumentácia",
   "resolution_trace": "Priebeh rezolúcie",
   "resolvent": "Rezolventa",
@@ -93,5 +94,8 @@
   "copy": "Kopírovať",
   "infinite_cycle_warning": "Detegovaný potenciálny nekonečný cyklus!",
   "infinite_cycle_message": "Dosiahnutá maximálna hĺbka stromu (16). Prehľadávanie bolo prerušené, aby sa predišlo nekonečnému cykleniu.",
-  "infinite_cycle_close": "OK"
+  "infinite_cycle_close": "OK",
+  "show_numbering_in_tree": "Číslovanie v strome",
+  "show_negation_in_tree": "Negácia v strome",
+  "bracket_style": "Unifikačné zátvorky"
 }

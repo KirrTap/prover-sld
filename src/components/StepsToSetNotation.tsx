@@ -74,7 +74,7 @@ export const StepsToSetNotation = ({
     <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`w-full flex justify-between items-center text-left text-lg font-semibold text-gray-700 dark:text-gray-200 ${isExpanded ? 'mb-4' : ''} transition-colors focus:outline-none`}
+        className={`w-full flex justify-between items-center text-left text-lg font-semibold text-gray-700 dark:text-gray-200 ${isExpanded ? 'mb-4' : ''} transition-colors focus:outline-none cursor-pointer`}
       >
         <span>{t("transformation_steps")}</span>
         <svg 

@@ -24,7 +24,7 @@ export const SearchStrategySwitcher: React.FC<SearchStrategySwitcherProps> = ({
       <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg border border-gray-200 dark:border-gray-600">
         <button
           onClick={() => setStrategy("dfs")}
-          className={`px-5 py-1.5 text-sm font-bold rounded-md transition-all ${
+          className={`px-5 py-1.5 text-sm font-bold rounded-md transition-all cursor-pointer ${
             strategy === "dfs"
               ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
               : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-gray-600/50"
