@@ -77,6 +77,8 @@
   "export_latex_landscape": "Landscape",
   "export_table_latex": "Generate LaTeX Table",
   "export_tree_latex": "Generate LaTeX Tree",
+  "font_size": "Font size",
+  "show_transformation_steps": "Show transformation steps",
   "show_all_branches": "Show branches without cut",
   "hide_all_branches": "Hide branches without cut",
   "fullscreen_enter": "Fullscreen",

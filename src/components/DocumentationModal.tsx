@@ -24,7 +24,7 @@ export const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps)
             </svg>
           </button>
         </div>
-        
+
         <div className="p-8 overflow-y-auto text-gray-700 dark:text-gray-300 leading-relaxed space-y-6">
           {lang === 'sk' ? (
             <>
@@ -43,33 +43,54 @@ export const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps)
                             <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                               <tr>
                                 <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Skratky</th>
-                                <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300 w-24 text-center">Symbol</th>
+                                <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300 w-16 text-center">Symbol</th>
+                                <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Popis</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                               <tr>
-                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\and, \land, \&amp;</code></td>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\and, \land, \&amp;, \wedge, {"/\\"}</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∧</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Konjunkcia</td>
                               </tr>
                               <tr>
-                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\or, \lor, \|</code></td>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\or, \lor, \vee,{"\\/"}
+                                </code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∨</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Disjunkcia</td>
                               </tr>
                               <tr>
-                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\implies, \rightarrow, \to</code></td>
-                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">=&gt;</td>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\implies, \rightarrow, \to, \=&gt;</code></td>
+                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">⇒</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Implikácia</td>
                               </tr>
                               <tr>
                                 <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\neg, \not, \!</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">¬</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Negácia</td>
                               </tr>
                               <tr>
                                 <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\forall</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∀</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Všeobecný kvantifikátor</td>
                               </tr>
                               <tr>
                                 <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\exists</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∃</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Existenčný kvantifikátor</td>
+                              </tr>
+                              <tr className="bg-gray-50 dark:bg-gray-700/40">
+                                <td className="px-4 py-2 text-gray-500 dark:text-gray-400 italic text-xs" colSpan={3}>Prologovské rozšírenia</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">!</code></td>
+                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">!</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Cut — zastaví spätné vyhľadávanie</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">{"\\+"}</code></td>
+                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">{"\\+"}</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Negácia ako zlyhanie (NAF)</td>
                               </tr>
                             </tbody>
                           </table>
@@ -77,7 +98,7 @@ export const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps)
                       </li>
                     </ul>
                   </li>
-                  <li><strong>Príklady:</strong> Nad textovým poľom sa nachádza tlačidlo <strong>„Príklady“</strong>, kde si viete vybrať z hotových ukážok.</li>
+                  <li><strong>Príklady:</strong> Nad textovým poľom sa nachádza tlačidlo <strong>„Príklady"</strong>, kde si viete vybrať z hotových ukážok.</li>
                   <li><strong>Vyhodnotenie:</strong> Transformácia krokov sa spustí po stlačení zeleného tlačidla "Spracovať formulu".</li>
                 </ul>
               </section>
@@ -87,7 +108,7 @@ export const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps)
                 <p className="mb-4">
                   Ak zadáte formulu v klasickej logike, najprv sa pod vstupom zobrazia <strong>transformačné kroky</strong>. Tieto kroky sú predvolene zbalené – ak si ich chcete pozrieť detailne, stačí na ne kliknúť a rozbalia sa. Následne sa v spodnej časti obrazovky zobrazí grafická reprezentácia rozdelená na <strong>dve časti</strong>.
                 </p>
-                
+
                 <div className="ml-4 space-y-4">
                   <div>
                     <h4 className="text-lg font-bold text-blue-700 dark:text-blue-400">SLD Strom (Ľavá strana)</h4>
@@ -95,7 +116,7 @@ export const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps)
                     <ul className="list-disc pl-5 space-y-1">
                       <li><strong>Generovať LaTeX:</strong> Hneď vedľa nadpisu "SLD Strom". Po kliknutí sa vám do schránky skopíruje vygenerovaný LaTeX kód tohto stromu. Skonvertuje sa len to, čo momentálne vidíte.</li>
                       <li><strong>Stratégia prehľadávania:</strong> Prepínač uprostred, kde si viete zvoliť, či sa má použiť <strong>DFS</strong> (do hĺbky) alebo <strong>BFS</strong> (do šírky). Strom aj tabuľka sa hneď prepočítajú.</li>
-                      <li><strong>Krokovanie:</strong> Napravo sú tlačidlá pre krokovanie algoritmu. Môžete prechádzať strom po jednom kroku vpred a vzad, alebo kliknúť na tlačidlo „Zobraziť všetko“ a nechať si vykresliť celý výsledok naraz.</li>
+                      <li><strong>Krokovanie:</strong> Napravo sú tlačidlá pre krokovanie algoritmu. Môžete prechádzať strom po jednom kroku vpred a vzad, alebo kliknúť na tlačidlo „Zobraziť všetko" a nechať si vykresliť celý výsledok naraz.</li>
                     </ul>
                   </div>
 
@@ -134,33 +155,54 @@ export const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps)
                             <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                               <tr>
                                 <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Shortcuts</th>
-                                <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300 w-24 text-center">Symbol</th>
+                                <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300 w-16 text-center">Symbol</th>
+                                <th className="px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Description</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                               <tr>
-                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\and, \land, \&amp;</code></td>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\and, \land, \&amp;, \wedge, {"/\\"}</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∧</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Conjunction</td>
                               </tr>
                               <tr>
-                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\or, \lor, \|</code></td>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\or, \lor, \vee,{"\\/"}
+                                </code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∨</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Disjunction</td>
                               </tr>
                               <tr>
-                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\implies, \rightarrow, \to</code></td>
-                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">=&gt;</td>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\implies, \rightarrow, \to, \=&gt;</code></td>
+                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">⇒</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Implication</td>
                               </tr>
                               <tr>
                                 <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\neg, \not, \!</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">¬</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Negation</td>
                               </tr>
                               <tr>
                                 <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\forall</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∀</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Universal quantifier</td>
                               </tr>
                               <tr>
                                 <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">\exists</code></td>
                                 <td className="px-4 py-2 text-center font-bold dark:text-gray-200">∃</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Existential quantifier</td>
+                              </tr>
+                              <tr className="bg-gray-50 dark:bg-gray-700/40">
+                                <td className="px-4 py-2 text-gray-500 dark:text-gray-400 italic text-xs" colSpan={3}>Prolog extensions</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">!</code></td>
+                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">!</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Cut — stops backtracking</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2"><code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 rounded">{"\\+"}</code></td>
+                                <td className="px-4 py-2 text-center font-bold dark:text-gray-200">{"\\+"}</td>
+                                <td className="px-4 py-2 dark:text-gray-300">Negation as Failure (NAF)</td>
                               </tr>
                             </tbody>
                           </table>
@@ -178,7 +220,7 @@ export const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps)
                 <p className="mb-4">
                   If you enter a formula in classical logic, the <strong>transformation steps</strong> will appear first below the input. These steps are collapsed by default – to view them in detail, simply click on them to expand. Then, the graphical representation is displayed at the bottom, divided into <strong>two connected parts</strong>.
                 </p>
-                
+
                 <div className="ml-4 space-y-4">
                   <div>
                     <h4 className="text-lg font-bold text-blue-700 dark:text-blue-400">SLD Tree (Left side)</h4>

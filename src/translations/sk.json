@@ -77,6 +77,8 @@
   "export_latex_landscape": "Na šírku",
   "export_table_latex": "Generovať LaTeX Tabuľku",
   "export_tree_latex": "Generovať LaTeX Strom",
+  "font_size": "Veľkosť písma",
+  "show_transformation_steps": "Zobraziť kroky transformácie",
   "show_all_branches": "Ukázať vetvy bez rezu",
   "hide_all_branches": "Skryť vetvy bez rezu",
   "fullscreen_enter": "Celá obrazovka",

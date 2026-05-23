@@ -16,12 +16,16 @@ interface InputFormProps {
   setExternalError: (
     error: { key: string; params: Record<string, string> } | null,
   ) => void;
+  showSteps: boolean;
+  onToggleSteps: () => void;
 }
 
 export const InputForm = ({
   onProcess,
   externalError,
   setExternalError,
+  showSteps,
+  onToggleSteps,
 }: InputFormProps) => {
   const { t } = useLanguage();
   const { theme } = useTheme();
@@ -31,6 +35,8 @@ export const InputForm = ({
   const highlightRef = useRef<HTMLDivElement>(null);
   const lineCount = useMemo(() => inputValue.split("\n").length, [inputValue]);
   const [showExamples, setShowExamples] = useState(false);
+  const [fontSize, setFontSize] = useState(16);
+  const lineHeight = Math.round(fontSize * 1.75);
   const exampleBtnRef = useRef<HTMLButtonElement>(null);
   const handleExampleSelect = (exampleValue: string) => {
     setInputValue(exampleValue);
@@ -118,7 +124,7 @@ export const InputForm = ({
       <label className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
         {t("enter_formula")}
       </label>
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-3">
         <div className="relative inline-block">
           <button
             ref={exampleBtnRef}
@@ -159,6 +165,18 @@ export const InputForm = ({
             </div>
           )}
         </div>
+        <div className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2">
+          <span className="text-gray-800 dark:text-gray-200 whitespace-nowrap font-medium">{t("font_size")}</span>
+          <input
+            type="number"
+            min={10}
+            max={32}
+            value={fontSize}
+            onChange={(e) => setFontSize(Number(e.target.value))}
+            className="w-12 bg-transparent text-gray-800 dark:text-gray-200 text-center focus:outline-none"
+          />
+          <span className="text-gray-800 dark:text-gray-200">px</span>
+        </div>
       </div>
       <div
         className="flex w-full border border-gray-300 dark:border-gray-600 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent mb-4 overflow-hidden"
@@ -170,7 +188,7 @@ export const InputForm = ({
           style={{ minWidth: "2.5rem" }}
         >
           {Array.from({ length: lineCount }, (_, i) => (
-            <div key={i + 1} style={{ height: "1.75rem", lineHeight: "1.75rem" }}>
+            <div key={i + 1} style={{ height: `${lineHeight}px`, lineHeight: `${lineHeight}px`, fontSize: `${fontSize}px` }}>
               {i + 1}
             </div>
           ))}
@@ -182,8 +200,8 @@ export const InputForm = ({
             className="absolute inset-0 overflow-hidden pointer-events-none select-none text-gray-700 dark:text-gray-200"
             style={{
               padding: "1rem",
-              fontSize: "1.125rem",
-              lineHeight: "1.75rem",
+              fontSize: `${fontSize}px`,
+              lineHeight: `${lineHeight}px`,
               whiteSpace: "pre-wrap",
               overflowWrap: "break-word",
               fontFamily: "inherit",
@@ -207,8 +225,8 @@ export const InputForm = ({
             className="absolute inset-0 w-full h-full resize-none focus:outline-none"
             style={{
               padding: "1rem",
-              fontSize: "1.125rem",
-              lineHeight: "1.75rem",
+              fontSize: `${fontSize}px`,
+              lineHeight: `${lineHeight}px`,
               fontFamily: "inherit",
               background: "transparent",
               color: "transparent",
@@ -232,12 +250,25 @@ export const InputForm = ({
         <div className="flex gap-2 flex-wrap">
           <SymbolButton symbol="∧" onClick={handleInsertSymbol} />
           <SymbolButton symbol="∨" onClick={handleInsertSymbol} />
-          <SymbolButton symbol="=>" onClick={handleInsertSymbol} />
+          <SymbolButton symbol="⇒" onClick={handleInsertSymbol} />
           <SymbolButton symbol="¬" onClick={handleInsertSymbol} />
           <SymbolButton symbol="∀" onClick={handleInsertSymbol} />
           <SymbolButton symbol="∃" onClick={handleInsertSymbol} />
         </div>
-        <div className="flex items-center gap-12 flex-wrap">
+        <div className="flex items-center gap-6 flex-wrap">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <span className="text-sm font-bold text-gray-600 dark:text-gray-300 whitespace-nowrap">
+              {t("show_transformation_steps")}
+            </span>
+            <div
+              onClick={onToggleSteps}
+              className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${showSteps ? "bg-blue-600" : "bg-gray-300"}`}
+            >
+              <div
+                className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${showSteps ? "translate-x-5" : "translate-x-0"}`}
+              />
+            </div>
+          </label>
           <ProcessButton onClick={handleProcess} />
         </div>
       </div>

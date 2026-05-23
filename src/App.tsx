@@ -19,6 +19,7 @@ function Content() {
     params: Record<string, string>;
   } | null>(null);
   const [showDocs, setShowDocs] = useState(false);
+  const [showSteps, setShowSteps] = useState(true);
 
   const handleProcess = (newTokens: LogicToken[] | null) => {
     setTokens(newTokens);
@@ -62,12 +63,14 @@ function Content() {
           onProcess={handleProcess}
           externalError={error}
           setExternalError={setError}
+          showSteps={showSteps}
+          onToggleSteps={() => setShowSteps((v) => !v)}
         />
       </div>
 
       {tokens && !error && (
         <div className="flex flex-col gap-8 mt-8 pb-10">
-          <StepsToSetNotation tokens={tokens} onError={handleParserError} />
+          {showSteps && <StepsToSetNotation tokens={tokens} onError={handleParserError} />}
           <SLDResolutionView
             tokens={tokens}
             strategy={strategy}

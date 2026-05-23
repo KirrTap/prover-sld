@@ -40,7 +40,7 @@ export function parseStandardFormula(tokens: LogicToken[]): ASTNode {
       case "or":
         return "∨";
       case "implies":
-        return "=>";
+        return "⇒";
       case "not":
         return "¬";
       case "forall":
@@ -556,7 +556,7 @@ function stringifyRecursive(
   if (node.type === "Cut") return "!";
   switch (node.type) {
     case "BinaryExpression": {
-      const ops = { and: "∧", or: "∨", implies: "=>" };
+      const ops = { and: "∧", or: "∨", implies: "⇒" };
       const leftStr = stringifyRecursive(node.left, "BinaryExpression");
       const rightStr = stringifyRecursive(node.right, "BinaryExpression");
       return `(${leftStr} ${ops[node.operator]} ${rightStr})`;

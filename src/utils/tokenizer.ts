@@ -91,6 +91,12 @@ export function logicTokenize(rawInput: string): LogicToken[] {
       continue;
     }
 
+    if (c === "⇒") {
+      tokens.push({ type: "implies" });
+      i++;
+      continue;
+    }
+
     if (c === "=" && input[i + 1] === ">") {
       tokens.push({ type: "implies" });
       i += 2;
