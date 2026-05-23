@@ -130,7 +130,7 @@ export const InputForm = ({
       <label className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
         {t("enter_formula")}
       </label>
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative" style={{ display: "inline-grid" }}>
           {/* Invisible sizer — determines width from longest example label */}
           <div
