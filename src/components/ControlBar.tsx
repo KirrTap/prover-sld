@@ -105,7 +105,7 @@ export const ControlBar = ({
                 : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-gray-600/50"
             }`}
           >
-            {"{}"}
+            {"{ }"}
           </button>
           <button
             onClick={() => bracketStyle !== "[]" && onToggleBracketStyle()}
@@ -115,7 +115,7 @@ export const ControlBar = ({
                 : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-gray-600/50"
             }`}
           >
-            {"[]"}
+            {"[ ]"}
           </button>
         </div>
       </div>
