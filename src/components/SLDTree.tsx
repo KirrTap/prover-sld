@@ -269,10 +269,6 @@ const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef
     if (treeLatexTrigger > 0) setIsLatexModalOpen(true);
   }, [treeLatexTrigger]);
 
-  const copyTreeToLatex = () => {
-    setIsLatexModalOpen(true);
-  };
-
   const handleConfirmLatexCopy = () => {
     if (!treeData || treeData.nodes.length === 0) return;
 

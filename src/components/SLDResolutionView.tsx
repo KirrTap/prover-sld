@@ -36,7 +36,7 @@ interface SLDResolutionViewProps {
 export const SLDResolutionView = ({
   tokens,
   strategy,
-  onStrategyChange,
+  onStrategyChange: _onStrategyChange,
   showAllBranches,
   showNumbering,
   showNegation,
@@ -118,10 +118,6 @@ export const SLDResolutionView = ({
   useEffect(() => {
     if (tableLatexTrigger > 0) setIsLatexModalOpen(true);
   }, [tableLatexTrigger]);
-
-  const copyToLatex = () => {
-    setIsLatexModalOpen(true);
-  };
 
   const handleConfirmLatexCopy = () => {
     if (!resolutionData || !resolutionData.treeData) return;
