@@ -10,8 +10,12 @@ import {
   Position,
   ReactFlowProvider,
   useReactFlow,
+  BaseEdge,
+  EdgeLabelRenderer,
+  getSmoothStepPath,
   type Node,
   type Edge,
+  type EdgeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import dagre from "dagre";
@@ -25,6 +29,7 @@ interface SLDTreeProps {
   treeData: SLDTreeData;
   visibleSteps: number;
   setVisibleSteps: React.Dispatch<React.SetStateAction<number>>;
+  nodeClauseRef?: Record<string, string>;
   highlightedNodeId?: string | null;
   onNodeClick?: (nodeId: string) => void;
   strategy: "dfs" | "bfs";
@@ -73,8 +78,109 @@ const CustomSLDNode = ({ data }: { data: SLDNodeData }) => {
   );
 };
 
+interface SLDEdgeData extends Record<string, unknown> {
+  substLabel: string;
+  clauseRef?: string;
+  isPruned: boolean;
+  isHighlighted: boolean;
+}
+
+const CustomSLDEdge = ({
+  id, sourceX, sourceY, targetX, targetY,
+  sourcePosition, targetPosition, data, markerEnd, animated,
+}: EdgeProps) => {
+  const { theme } = useTheme();
+  const dark = theme === "dark";
+  const d = data as SLDEdgeData;
+
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX, sourceY, sourcePosition,
+    targetX, targetY, targetPosition,
+  });
+
+  const strokeColor = d.isPruned
+    ? (dark ? '#4b5563' : '#d1d5db')
+    : d.isHighlighted ? '#3b82f6'
+    : (dark ? '#6b7280' : '#b1b1b7');
+
+  const labelColor = d.isPruned
+    ? (dark ? '#6b7280' : '#9ca3af')
+    : d.isHighlighted ? (dark ? '#93c5fd' : '#2563eb')
+    : (dark ? '#e5e7eb' : '#374151');
+
+  const labelBg = d.isPruned
+    ? (dark ? '#374151' : '#f3f4f6')
+    : d.isHighlighted ? (dark ? '#1e3a5f' : '#dbeafe')
+    : (dark ? '#1f2937' : '#f3f4f6');
+
+  const labelBorder = d.isPruned
+    ? (dark ? '#4b5563' : '#e5e7eb')
+    : d.isHighlighted ? '#3b82f6'
+    : (dark ? '#4b5563' : '#d1d5db');
+
+  const refColor = dark ? '#fb923c' : '#ea580c';
+
+  const hasRef = !!d.clauseRef;
+  const substY = hasRef ? labelY : labelY;
+
+  return (
+    <>
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        markerEnd={markerEnd}
+        className={animated && !d.isPruned ? 'animated' : undefined}
+        style={{
+          stroke: strokeColor,
+          strokeWidth: d.isHighlighted ? 3 : 1,
+          strokeDasharray: d.isPruned ? '6 4' : undefined,
+        }}
+      />
+      <EdgeLabelRenderer>
+        {hasRef && (
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY - 21}px)`,
+              pointerEvents: 'none',
+              fontSize: '10px',
+              fontWeight: 600,
+              color: refColor,
+              lineHeight: '14px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {d.clauseRef}
+          </div>
+        )}
+        <div
+          style={{
+            position: 'absolute',
+            transform: `translate(-50%, -50%) translate(${labelX}px, ${substY}px)`,
+            pointerEvents: 'none',
+            fontSize: '11px',
+            fontWeight: d.isHighlighted ? 700 : 500,
+            color: labelColor,
+            background: labelBg,
+            border: `1px solid ${labelBorder}`,
+            borderRadius: '3px',
+            padding: '1px 4px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {d.substLabel}
+        </div>
+      </EdgeLabelRenderer>
+    </>
+  );
+};
+
 const nodeTypes = {
   sldNode: CustomSLDNode,
+};
+
+const edgeTypes = {
+  customSLDEdge: CustomSLDEdge,
 };
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => {
@@ -107,7 +213,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => 
   return { nodes: layoutedNodes, edges };
 };
 
-const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, highlightedNodeId, onNodeClick, strategy, onStrategyChange, hasCut, showAllBranches, onToggleAllBranches }: SLDTreeProps) => {
+const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef, highlightedNodeId, onNodeClick, strategy, onStrategyChange, hasCut, showAllBranches, onToggleAllBranches }: SLDTreeProps) => {
   const { t } = useLanguage();
   const { theme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -142,7 +248,6 @@ const SLDTreeContent = ({ treeData, visibleSteps, setVisibleSteps, highlightedNo
       setVisibleSteps(effectiveMax);
       setFitViewTrigger(t => t + 1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showAllBranches]);
 
   useEffect(() => {
@@ -330,45 +435,20 @@ ${treeLatex}
       };
     });
 
-    const dark = theme === "dark";
     const initialEdges: Edge[] = effectiveTreeEdges.map((edge) => {
       const isTargetHighlighted = edge.target === highlightedNodeId;
-      const isPruned = edge.isPruned;
+      const isPruned = !!edge.isPruned;
       return {
         id: edge.id,
         source: edge.source,
         target: edge.target,
-        label: edge.label,
-        type: 'smoothstep',
-        labelStyle: {
-          fill: isPruned
-            ? (dark ? '#6b7280' : '#9ca3af')
-            : isTargetHighlighted
-            ? (dark ? '#93c5fd' : '#2563eb')
-            : (dark ? '#e5e7eb' : '#374151'),
-          fontWeight: isTargetHighlighted ? 700 : 500,
-        },
-        labelBgStyle: {
-          fill: isPruned
-            ? (dark ? '#374151' : '#f3f4f6')
-            : isTargetHighlighted
-            ? (dark ? '#1e3a5f' : '#dbeafe')
-            : (dark ? '#1f2937' : '#f3f4f6'),
-          stroke: isPruned
-            ? (dark ? '#4b5563' : '#e5e7eb')
-            : isTargetHighlighted
-            ? '#3b82f6'
-            : (dark ? '#4b5563' : '#d1d5db'),
-        },
+        type: 'customSLDEdge',
         animated: !isPruned,
-        style: {
-          stroke: isPruned
-            ? (dark ? '#4b5563' : '#d1d5db')
-            : isTargetHighlighted
-            ? '#3b82f6'
-            : (dark ? '#6b7280' : '#b1b1b7'),
-          strokeWidth: isTargetHighlighted ? 3 : 1,
-          strokeDasharray: isPruned ? '6 4' : undefined,
+        data: {
+          substLabel: edge.label ?? '{ }',
+          clauseRef: nodeClauseRef?.[edge.target],
+          isPruned,
+          isHighlighted: isTargetHighlighted,
         },
       };
     });
@@ -454,6 +534,7 @@ ${treeLatex}
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeClick={(_, node) => onNodeClick && onNodeClick(node.id)}
@@ -553,13 +634,14 @@ ${treeLatex}
   );
 };
 
-export const SLDTree = ({ treeData, visibleSteps, setVisibleSteps, highlightedNodeId, onNodeClick, strategy, onStrategyChange, hasCut, showAllBranches, onToggleAllBranches }: SLDTreeProps) => {
+export const SLDTree = ({ treeData, visibleSteps, setVisibleSteps, nodeClauseRef, highlightedNodeId, onNodeClick, strategy, onStrategyChange, hasCut, showAllBranches, onToggleAllBranches }: SLDTreeProps) => {
   return (
     <ReactFlowProvider>
       <SLDTreeContent
         treeData={treeData}
         visibleSteps={visibleSteps}
         setVisibleSteps={setVisibleSteps}
+        nodeClauseRef={nodeClauseRef}
         highlightedNodeId={highlightedNodeId}
         onNodeClick={onNodeClick}
         strategy={strategy}

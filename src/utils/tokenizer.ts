@@ -8,7 +8,8 @@ export type LogicToken =
   | { type: "lparen" }
   | { type: "rparen" }
   | { type: "comma" }
-  | { type: "cut" } // Prolog cut '!'
+  | { type: "cut" }
+  | { type: "naf" } 
   | { type: "lower_id"; value: string }
   | { type: "upper_id"; value: string }
   | { type: "number"; value: string }
@@ -35,6 +36,12 @@ export function logicTokenize(rawInput: string): LogicToken[] {
       i++;
       continue;
     }
+    if (c === "\\" && input[i + 1] === "+") {
+      tokens.push({ type: "naf" });
+      i += 2;
+      continue;
+    }
+
     switch (c) {
       case "!":
         tokens.push({ type: "cut" });

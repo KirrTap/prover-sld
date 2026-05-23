@@ -101,6 +101,8 @@ export function toNNF(node: ASTNode, negated: boolean = false): ASTNode {
         }
         break;
       case "Predicate":
+        if (node.name === "\\+") return node;
+        return { type: "UnaryExpression", operator: "not", operand: node };
       case "Function":
       case "Constant":
       case "Variable":

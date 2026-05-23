@@ -1,6 +1,6 @@
 import { parseLiteralToPredicate, unifyPredicates, applySubstitutionToPredicate, termToString, type Predicate, type Term } from "./unification";
 import type { SLDNode, SLDEdge, SLDTreeData } from "./sldResolutionDFS";
-import { isTruePredicate, isFailPredicate } from "./sldResolutionDFS";
+import { isTruePredicate, isFailPredicate, isNAFPredicate, extractNAFGoalPredicate, tryProveGoals } from "./sldResolutionDFS";
 
 export function generateSLDTreeBFS(knowledgeBase: string[][], initialGoals: string[][], maxDepth: number = 15, variables: string[] = []): SLDTreeData {
   const nodes: SLDNode[] = [];
@@ -70,6 +70,23 @@ export function generateSLDTreeBFS(knowledgeBase: string[][], initialGoals: stri
 
     if (isFailPredicate(currentGoal)) {
       node.status = "failure";
+      continue;
+    }
+
+    if (isNAFPredicate(currentGoal)) {
+      const innerGoal = extractNAFGoalPredicate(currentGoal);
+      const provable = tryProveGoals([innerGoal], kbParsed, maxDepth, depth + 1);
+      const nafChildId = `n${nodeIdCounter++}`;
+      const nafChildNode: SLDNode = {
+        id: nafChildId,
+        goals: provable ? [] : remainingGoals,
+        parent: node.id,
+        builtinName: "\\+",
+        status: provable ? "failure" : (remainingGoals.length === 0 ? "success" : "open"),
+      };
+      nodes.push(nafChildNode);
+      edges.push({ id: `e-${node.id}-${nafChildId}`, source: node.id, target: nafChildId, label: "{ }" });
+      if (!provable) queue.push({ node: nafChildNode, depth: depth + 1 });
       continue;
     }
 

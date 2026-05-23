@@ -129,7 +129,7 @@ export const InputForm = ({
           >
             <span className="flex-1 text-left">{t("examples")}</span>
             <svg
-              className="w-4 h-4 ml-2"
+              className={`w-4 h-4 ml-2 transition-transform duration-200 ${showExamples ? "rotate-180" : ""}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -144,7 +144,7 @@ export const InputForm = ({
           </button>
           {showExamples && (
             <div
-              className="absolute z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg mt-1 left-0 min-w-[140px]"
+              className="absolute z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg mt-1 left-0 w-full"
             >
               {EXAMPLES.map((ex) => (
                 <button

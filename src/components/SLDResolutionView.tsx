@@ -238,6 +238,14 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
     });
   }
 
+  const nodeClauseRef: Record<string, string> = {};
+  treeData.nodes.slice(1).forEach(node => {
+    if (node.usedClauseIndex !== undefined) {
+      const kbStep = kbOrigIdxToRow[node.usedClauseIndex];
+      if (kbStep !== undefined) nodeClauseRef[node.id] = String(kbStep);
+    }
+  });
+
   const formatWithBreaks = (text: string) => {
     return text.split(",").map((part, i, arr) => (
       <span key={i}>
@@ -250,10 +258,11 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
   return (
     <div ref={containerRef} className="flex flex-col lg:flex-row w-full gap-4 scroll-mt-6">
       <div className="w-full lg:w-[60%] flex flex-col">
-        <SLDTree 
-          treeData={treeData} 
-          visibleSteps={visibleSteps} 
-          setVisibleSteps={setVisibleSteps} 
+        <SLDTree
+          treeData={treeData}
+          visibleSteps={visibleSteps}
+          setVisibleSteps={setVisibleSteps}
+          nodeClauseRef={nodeClauseRef}
           highlightedNodeId={highlightedNodeId}
           onNodeClick={(nodeId) => {
             setHighlightedNodeId(prev => prev === nodeId ? null : nodeId);
@@ -291,11 +300,11 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
                 const isRootGoal = idx === initialClauses.length - 1;
                 const nodeId = isRootGoal && treeData.nodes.length > 0 ? treeData.nodes[0].id : null;
                 const isHighlighted = highlightedNodeId && nodeId === highlightedNodeId;
-                
+
                 return (
-                  <tr 
+                  <tr
                     id={nodeId ? `row-${nodeId}` : undefined}
-                    key={`init-${idx}`} 
+                    key={`init-${idx}`}
                     className={`transition-colors ${nodeId ? 'cursor-pointer' : 'cursor-not-allowed bg-gray-50 dark:bg-gray-900'} ${isHighlighted ? 'bg-blue-200 dark:bg-blue-900 hover:bg-blue-300 dark:hover:bg-blue-800' : (nodeId ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : '')}`}
                     onClick={() => nodeId && setHighlightedNodeId(prev => prev === nodeId ? null : nodeId)}
                   >

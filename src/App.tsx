@@ -58,24 +58,20 @@ function Content() {
             <LanguageDropdown />
           </div>
         </div>
-        <div className="flex flex-col gap-8">
-          <InputForm
-            onProcess={handleProcess}
-            externalError={error}
-            setExternalError={setError}
-          />
-          {tokens && !error && (
-            <StepsToSetNotation tokens={tokens} onError={handleParserError} />
-          )}
-        </div>
+        <InputForm
+          onProcess={handleProcess}
+          externalError={error}
+          setExternalError={setError}
+        />
       </div>
 
       {tokens && !error && (
-        <div className="mt-8 w-full pb-10">
-          <SLDResolutionView 
-            tokens={tokens} 
-            strategy={strategy} 
-            onStrategyChange={setStrategy} 
+        <div className="flex flex-col gap-8 mt-8 pb-10">
+          <StepsToSetNotation tokens={tokens} onError={handleParserError} />
+          <SLDResolutionView
+            tokens={tokens}
+            strategy={strategy}
+            onStrategyChange={setStrategy}
           />
         </div>
       )}

@@ -156,6 +156,12 @@ function parsePrologBody(tokens: LogicToken[]): ASTNode {
 function parsePrologLiteral(tokens: LogicToken[]): ASTNode {
   if (tokens.length === 0)
     throw new Error("errors.error_prolog_invalid_predicate");
+  if (tokens[0].type === "naf") {
+    if (tokens.length < 2)
+      throw new Error("errors.error_prolog_invalid_predicate");
+    const innerGoal = parsePrologPredicate(tokens.slice(1));
+    return { type: "Predicate", name: "\\+", args: [innerGoal] };
+  }
   if (tokens[0].type === "not") {
     return {
       type: "UnaryExpression",

@@ -40,6 +40,63 @@ export function isFailPredicate(p: Predicate): boolean {
   return p.name === "fail" && p.args.length === 0 && !p.isNegated;
 }
 
+export function isNAFPredicate(p: Predicate): boolean {
+  return p.name === "\\+" && p.args.length === 1 && !p.isNegated;
+}
+
+export function extractNAFGoalPredicate(p: Predicate): Predicate {
+  const inner = p.args[0];
+  if (inner.type === "Function") {
+    return { name: inner.name, args: inner.args, isNegated: true };
+  }
+  return { name: inner.name, args: [], isNegated: true };
+}
+
+export function tryProveGoals(
+  goals: Predicate[],
+  kbParsed: Predicate[][],
+  maxDepth: number,
+  depth = 0,
+): boolean {
+  if (depth >= maxDepth) return false;
+  if (goals.length === 0) return true;
+
+  const [first, ...rest] = goals;
+
+  if (first.name === "true" && first.args.length === 0) return tryProveGoals(rest, kbParsed, maxDepth, depth);
+  if (first.name === "fail" && first.args.length === 0) return false;
+  if (first.name === "!" && first.args.length === 0) return tryProveGoals(rest, kbParsed, maxDepth, depth);
+  if (first.name === "\\+" && first.args.length === 1) {
+    const inner = extractNAFGoalPredicate(first);
+    if (tryProveGoals([inner], kbParsed, maxDepth, depth + 1)) return false;
+    return tryProveGoals(rest, kbParsed, maxDepth, depth);
+  }
+
+  const renameTerm = (t: Term, sfx: number): Term => {
+    if (t.type === "Variable") return { type: "Variable", name: `${t.name}_tp${sfx}` };
+    if (t.type === "Function") return { type: "Function", name: t.name, args: t.args.map(a => renameTerm(a, sfx)) };
+    return t;
+  };
+
+  for (let kbIdx = 0; kbIdx < kbParsed.length; kbIdx++) {
+    const sfx = depth * 10000 + kbIdx;
+    const kbClause = kbParsed[kbIdx].map(p => ({ ...p, args: p.args.map((a: Term) => renameTerm(a, sfx)) }));
+    for (let headIdx = 0; headIdx < kbClause.length; headIdx++) {
+      if (kbClause[headIdx].isNegated === first.isNegated) continue;
+      const subst = unifyPredicates(
+        { ...first, isNegated: false },
+        { ...kbClause[headIdx], isNegated: false },
+      );
+      if (subst) {
+        const kbBody = kbClause.filter((_, idx) => idx !== headIdx);
+        const nextGoals = [...kbBody, ...rest].map(g => applySubstitutionToPredicate(g, subst));
+        if (tryProveGoals(nextGoals, kbParsed, maxDepth, depth + 1)) return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function generateSLDTreeDFS(knowledgeBase: string[][], initialGoals: string[][], maxDepth: number = 15, variables: string[] = []): SLDTreeData {
   const nodes: SLDNode[] = [];
   const edges: SLDEdge[] = [];
@@ -130,6 +187,33 @@ export function generateSLDTreeDFS(knowledgeBase: string[][], initialGoals: stri
 
     if (isFailPredicate(node.goals[0])) {
       node.status = "failure";
+      return false;
+    }
+
+    if (isNAFPredicate(node.goals[0])) {
+      const innerGoal = extractNAFGoalPredicate(node.goals[0]);
+      const provable = tryProveGoals([innerGoal], kbParsed, maxDepth, depth + 1);
+      const remainingAfterNAF = node.goals.slice(1);
+      const nafChildId = `n${nodeIdCounter++}`;
+      const nafChildNode: SLDNode = {
+        id: nafChildId,
+        goals: provable ? [] : remainingAfterNAF,
+        parent: node.id,
+        builtinName: "\\+",
+        status: provable ? "failure" : (remainingAfterNAF.length === 0 ? "success" : "open"),
+        isPruned: isPruned,
+      };
+      nodes.push(nafChildNode);
+      edges.push({
+        id: `e-${node.id}-${nafChildId}`,
+        source: node.id,
+        target: nafChildId,
+        label: "{ }",
+        isPruned: isPruned,
+      });
+      if (!provable) {
+        explore(nafChildNode, depth + 1, isPruned);
+      }
       return false;
     }
 
