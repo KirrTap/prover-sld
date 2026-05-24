@@ -411,7 +411,7 @@ ${treeLatex}
 
     const initialNodes: Node[] = effectiveTreeNodes.map((node, index) => {
       const goalsText = node.goals.length === 0
-        ? "□"
+        ? (node.status === "failure" ? "fail" : "□")
         : node.goals.map(g => predicateToString(g)).join(', ');
 
       const displayText = !showNegation ? goalsText.replace(/¬/g, '') : goalsText;

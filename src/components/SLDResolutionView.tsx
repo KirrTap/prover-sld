@@ -328,7 +328,7 @@ ${latexOrientation === 'landscape' ? '\\usepackage{pdflscape}\n' : ''}
                 let isSpecial = false;
 
                 if (node.goals.length === 0) {
-                  resolventText = "□";
+                  resolventText = node.status === "failure" ? "fail" : "□";
                   isSpecial = true;
                 } else {
                   resolventText = node.goals.map(g => predicateToString(g)).join(", ");
