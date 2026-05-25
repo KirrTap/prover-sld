@@ -9,9 +9,7 @@ export const EXAMPLES: { labelKey: string; value: string }[] = [
 parent(jozo, erik). 
 parent(jozo, maria).
 parent(maria, kika).
-not_same(jano, maria).
-not_same(jano, erik).
-sibling(X, Y) :- parent(P, X), parent(P, Y), not_same(X, Y).
+sibling(X, Y) :- parent(P, X), parent(P, Y), X \\= Y.
 ?- sibling(jano, S).` 
   },
   {
