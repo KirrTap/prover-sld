@@ -1,4 +1,4 @@
-import { parseLiteralToPredicate, unifyPredicates, applySubstitutionToPredicate, termToString, type Predicate, type Term } from "./unification";
+import { parseLiteralToPredicate, unifyPredicates, unifyTerms, applySubstitutionToPredicate, termToString, type Predicate, type Term, type Substitution } from "./unification";
 
 export interface SLDNode {
   id: string;
@@ -44,6 +44,28 @@ export function isNAFPredicate(p: Predicate): boolean {
   return p.name === "\\+" && p.args.length === 1 && !p.isNegated;
 }
 
+export function isUnifyPredicate(p: Predicate): boolean {
+  return p.name === "=" && p.args.length === 2;
+}
+
+export function isNotUnifyPredicate(p: Predicate): boolean {
+  return p.name === "\\=" && p.args.length === 2;
+}
+
+export function buildSubstLabel(subst: Substitution): string {
+  const parts: string[] = [];
+  const seen = new Set<string>();
+  subst.forEach((val, key) => {
+    const cleanKey = key.replace(/_\d+$/, "");
+    const cleanVal = termToString(val);
+    if (!seen.has(cleanKey) && cleanVal !== cleanKey) {
+      seen.add(cleanKey);
+      parts.push(`${cleanVal}/${cleanKey}`);
+    }
+  });
+  return parts.length > 0 ? `{ ${parts.join(", ")} }` : "{ }";
+}
+
 export function extractNAFGoalPredicate(p: Predicate): Predicate {
   const inner = p.args[0];
   if (inner.type === "Function") {
@@ -69,6 +91,16 @@ export function tryProveGoals(
   if (first.name === "\\+" && first.args.length === 1) {
     const inner = extractNAFGoalPredicate(first);
     if (tryProveGoals([inner], kbParsed, maxDepth, depth + 1)) return false;
+    return tryProveGoals(rest, kbParsed, maxDepth, depth);
+  }
+  if (first.name === "=" && first.args.length === 2) {
+    const subst: Substitution = new Map();
+    if (!unifyTerms(first.args[0], first.args[1], subst)) return false;
+    return tryProveGoals(rest.map(g => applySubstitutionToPredicate(g, subst)), kbParsed, maxDepth, depth);
+  }
+  if (first.name === "\\=" && first.args.length === 2) {
+    const subst: Substitution = new Map();
+    if (unifyTerms(first.args[0], first.args[1], subst)) return false;
     return tryProveGoals(rest, kbParsed, maxDepth, depth);
   }
 
@@ -214,6 +246,64 @@ export function generateSLDTreeDFS(knowledgeBase: string[][], initialGoals: stri
       if (!provable) {
         explore(nafChildNode, depth + 1, isPruned);
       }
+      return false;
+    }
+
+    if (isUnifyPredicate(node.goals[0])) {
+      const subst: Substitution = new Map();
+      const success = unifyTerms(node.goals[0].args[0], node.goals[0].args[1], subst);
+      if (!success) {
+        node.status = "failure";
+        return false;
+      }
+      const remaining = node.goals.slice(1).map(g => applySubstitutionToPredicate(g, subst));
+      const childId = `n${nodeIdCounter++}`;
+      const childNode: SLDNode = {
+        id: childId,
+        goals: remaining,
+        parent: node.id,
+        builtinName: "=",
+        status: remaining.length === 0 ? "success" : "open",
+        isPruned: isPruned,
+      };
+      nodes.push(childNode);
+      edges.push({
+        id: `e-${node.id}-${childId}`,
+        source: node.id,
+        target: childId,
+        label: buildSubstLabel(subst),
+        isPruned: isPruned,
+      });
+      explore(childNode, depth + 1, isPruned);
+      return false;
+    }
+
+    if (isNotUnifyPredicate(node.goals[0])) {
+      const subst: Substitution = new Map();
+      const canUnify = unifyTerms(node.goals[0].args[0], node.goals[0].args[1], subst);
+      if (canUnify) {
+        node.status = "failure";
+        return false;
+      }
+      const remaining = node.goals.slice(1);
+      const childId = `n${nodeIdCounter++}`;
+      const childNode: SLDNode = {
+        id: childId,
+        goals: remaining,
+        parent: node.id,
+        builtinName: "\\=",
+        status: remaining.length === 0 ? "success" : "open",
+        isPruned: isPruned,
+      };
+      nodes.push(childNode);
+      edges.push({
+        id: `e-${node.id}-${childId}`,
+        source: node.id,
+        target: childId,
+        label: "{ }",
+        isPruned: isPruned,
+      });
+      explore(childNode, depth + 1, isPruned);
       return false;
     }
 

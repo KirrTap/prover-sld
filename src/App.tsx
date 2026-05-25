@@ -66,12 +66,12 @@ function Content() {
           </h1>
         </div>
         <div className="flex items-center gap-6">
-          <button
+          {/* <button
             onClick={() => {}}
             className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors border-b-2 border-transparent hover:border-blue-600 dark:hover:border-blue-400 cursor-pointer"
           >
             {t("tutorial")}
-          </button>
+          </button> */}
           <button
             onClick={() => setShowDocs(true)}
             className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors border-b-2 border-transparent hover:border-blue-600 dark:hover:border-blue-400 cursor-pointer"

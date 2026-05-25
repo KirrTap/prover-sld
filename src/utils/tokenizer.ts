@@ -9,7 +9,9 @@ export type LogicToken =
   | { type: "rparen" }
   | { type: "comma" }
   | { type: "cut" }
-  | { type: "naf" } 
+  | { type: "naf" }
+  | { type: "unify" }
+  | { type: "not_unify" }
   | { type: "lower_id"; value: string }
   | { type: "upper_id"; value: string }
   | { type: "number"; value: string }
@@ -38,6 +40,11 @@ export function logicTokenize(rawInput: string): LogicToken[] {
     }
     if (c === "\\" && input[i + 1] === "+") {
       tokens.push({ type: "naf" });
+      i += 2;
+      continue;
+    }
+    if (c === "\\" && input[i + 1] === "=") {
+      tokens.push({ type: "not_unify" });
       i += 2;
       continue;
     }
@@ -100,6 +107,11 @@ export function logicTokenize(rawInput: string): LogicToken[] {
     if (c === "=" && input[i + 1] === ">") {
       tokens.push({ type: "implies" });
       i += 2;
+      continue;
+    }
+    if (c === "=") {
+      tokens.push({ type: "unify" });
+      i++;
       continue;
     }
 

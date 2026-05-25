@@ -1,6 +1,6 @@
-import { parseLiteralToPredicate, unifyPredicates, applySubstitutionToPredicate, termToString, type Predicate, type Term } from "./unification";
+import { parseLiteralToPredicate, unifyPredicates, unifyTerms, applySubstitutionToPredicate, termToString, type Predicate, type Term, type Substitution } from "./unification";
 import type { SLDNode, SLDEdge, SLDTreeData } from "./sldResolutionDFS";
-import { isTruePredicate, isFailPredicate, isNAFPredicate, extractNAFGoalPredicate, tryProveGoals } from "./sldResolutionDFS";
+import { isTruePredicate, isFailPredicate, isNAFPredicate, isUnifyPredicate, isNotUnifyPredicate, extractNAFGoalPredicate, tryProveGoals, buildSubstLabel } from "./sldResolutionDFS";
 
 export function generateSLDTreeBFS(knowledgeBase: string[][], initialGoals: string[][], maxDepth: number = 15, variables: string[] = []): SLDTreeData {
   const nodes: SLDNode[] = [];
@@ -87,6 +87,49 @@ export function generateSLDTreeBFS(knowledgeBase: string[][], initialGoals: stri
       nodes.push(nafChildNode);
       edges.push({ id: `e-${node.id}-${nafChildId}`, source: node.id, target: nafChildId, label: "{ }" });
       if (!provable) queue.push({ node: nafChildNode, depth: depth + 1 });
+      continue;
+    }
+
+    if (isUnifyPredicate(currentGoal)) {
+      const subst: Substitution = new Map();
+      const success = unifyTerms(currentGoal.args[0], currentGoal.args[1], subst);
+      if (!success) {
+        node.status = "failure";
+        continue;
+      }
+      const nextGoals = remainingGoals.map(g => applySubstitutionToPredicate(g, subst));
+      const childId = `n${nodeIdCounter++}`;
+      const childNode: SLDNode = {
+        id: childId,
+        goals: nextGoals,
+        parent: node.id,
+        builtinName: "=",
+        status: nextGoals.length === 0 ? "success" : "open",
+      };
+      nodes.push(childNode);
+      edges.push({ id: `e-${node.id}-${childId}`, source: node.id, target: childId, label: buildSubstLabel(subst) });
+      queue.push({ node: childNode, depth: depth + 1 });
+      continue;
+    }
+
+    if (isNotUnifyPredicate(currentGoal)) {
+      const subst: Substitution = new Map();
+      const canUnify = unifyTerms(currentGoal.args[0], currentGoal.args[1], subst);
+      if (canUnify) {
+        node.status = "failure";
+        continue;
+      }
+      const childId = `n${nodeIdCounter++}`;
+      const childNode: SLDNode = {
+        id: childId,
+        goals: remainingGoals,
+        parent: node.id,
+        builtinName: "\\=",
+        status: remainingGoals.length === 0 ? "success" : "open",
+      };
+      nodes.push(childNode);
+      edges.push({ id: `e-${node.id}-${childId}`, source: node.id, target: childId, label: "{ }" });
+      queue.push({ node: childNode, depth: depth + 1 });
       continue;
     }
 

@@ -153,9 +153,76 @@ function parsePrologBody(tokens: LogicToken[]): ASTNode {
   return ast;
 }
 
+function findInfixOp(tokens: LogicToken[], opType: "unify" | "not_unify"): number {
+  let depth = 0;
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].type === "lparen") depth++;
+    else if (tokens[i].type === "rparen") depth--;
+    else if (tokens[i].type === opType && depth === 0 && i > 0) return i;
+  }
+  return -1;
+}
+
+function parsePrologBuiltinArgs(tokens: LogicToken[]): ASTNode[] {
+  // tokens: [lparen, ..., rparen]
+  if (tokens.length < 3 || tokens[0].type !== "lparen" || tokens[tokens.length - 1].type !== "rparen")
+    throw new Error("errors.error_prolog_invalid_predicate");
+  const inner = tokens.slice(1, -1);
+  if (inner.length === 0) throw new Error("errors.error_empty_arguments");
+  const args: ASTNode[] = [];
+  let depth = 0;
+  let cur: LogicToken[] = [];
+  for (const t of inner) {
+    if (t.type === "lparen") depth++;
+    else if (t.type === "rparen") depth--;
+    if (t.type === "comma" && depth === 0) {
+      if (cur.length === 0) throw new Error("errors.error_unexpected_comma");
+      args.push(parsePrologTerm(cur));
+      cur = [];
+    } else {
+      cur.push(t);
+    }
+  }
+  if (cur.length === 0) throw new Error("errors.error_unexpected_comma");
+  args.push(parsePrologTerm(cur));
+  return args;
+}
+
 function parsePrologLiteral(tokens: LogicToken[]): ASTNode {
   if (tokens.length === 0)
     throw new Error("errors.error_prolog_invalid_predicate");
+
+  // Prefix form: =(X, Y) or \=(X, Y)
+  if (tokens[0].type === "not_unify") {
+    const args = parsePrologBuiltinArgs(tokens.slice(1));
+    if (args.length !== 2) throw new Error("errors.error_prolog_invalid_predicate");
+    return { type: "Predicate", name: "\\=", args };
+  }
+  if (tokens[0].type === "unify") {
+    const args = parsePrologBuiltinArgs(tokens.slice(1));
+    if (args.length !== 2) throw new Error("errors.error_prolog_invalid_predicate");
+    return { type: "Predicate", name: "=", args };
+  }
+
+  // Infix form: X \= Y or X = Y
+  const notUnifyIdx = findInfixOp(tokens, "not_unify");
+  if (notUnifyIdx !== -1) {
+    const lhs = tokens.slice(0, notUnifyIdx);
+    const rhs = tokens.slice(notUnifyIdx + 1);
+    if (lhs.length === 0 || rhs.length === 0)
+      throw new Error("errors.error_prolog_invalid_predicate");
+    return { type: "Predicate", name: "\\=", args: [parsePrologTerm(lhs), parsePrologTerm(rhs)] };
+  }
+
+  const unifyIdx = findInfixOp(tokens, "unify");
+  if (unifyIdx !== -1) {
+    const lhs = tokens.slice(0, unifyIdx);
+    const rhs = tokens.slice(unifyIdx + 1);
+    if (lhs.length === 0 || rhs.length === 0)
+      throw new Error("errors.error_prolog_invalid_predicate");
+    return { type: "Predicate", name: "=", args: [parsePrologTerm(lhs), parsePrologTerm(rhs)] };
+  }
+
   if (tokens[0].type === "naf") {
     if (tokens.length < 2)
       throw new Error("errors.error_prolog_invalid_predicate");

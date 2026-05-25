@@ -198,10 +198,11 @@ export function termToString(t: Term): string {
 }
 
 export function predicateToString(p: Predicate): string {
+  if ((p.name === "=" || p.name === "\\=") && p.args.length === 2) {
+    return `${termToString(p.args[0])} ${p.name} ${termToString(p.args[1])}`;
+  }
   const nameStr = p.isNegated ? `¬${p.name}` : p.name;
   if (p.args.length === 0) return nameStr;
-  
   const argsStr = p.args.map(termToString).join(", ");
-  
   return `${nameStr}(${argsStr})`;
 }
